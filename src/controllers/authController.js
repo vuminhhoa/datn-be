@@ -19,7 +19,7 @@ export async function register(req, res) {
     const createdUser = await User.create({
       ...req.body,
       password: hashPassword,
-      RoleId: role ? role : 2,
+      RoleId: role ? role : 1,
     });
     await createdUser.save();
     return res.send({ success: true, data: createdUser });
