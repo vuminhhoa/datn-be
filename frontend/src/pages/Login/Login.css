@@ -1,8 +1,0 @@
-.login-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh; /* Đảm bảo card login được căn giữa theo chiều cao */
-  background: url('https://images.pexels.com/photos/255379/pexels-photo-255379.jpeg?cs=srgb&dl=pexels-miguel-%C3%A1-padri%C3%B1%C3%A1n-255379.jpg&fm=jpg')
-    center center/cover; /* Đường dẫn đến hình nền */
-}
