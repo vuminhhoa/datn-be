@@ -13,11 +13,7 @@ import {
   deleteEquipment,
   updateEquipment,
 } from '../controllers/equipmentController.js';
-import {
-  getRole,
-  getSettings,
-  getRoles,
-} from '../controllers/settingsController.js';
+import { getSettings, getRoles } from '../controllers/settingsController.js';
 import {
   updateBidding,
   getOneBidding,
@@ -25,6 +21,13 @@ import {
   getListBiddings,
   deleteBidding,
 } from '../controllers/biddingController.js';
+import {
+  createRole,
+  deleteRole,
+  updateRole,
+  getRole,
+} from '../controllers/roleController.js';
+
 const api = express.Router();
 
 api.post('/auth/register', register);
@@ -34,6 +37,11 @@ api.post('/auth/verify', verify);
 api.get('/settings', getSettings);
 api.get('/settings/role/:id', getRole);
 api.get('/settings/roles', getRoles);
+
+api.post('/role/:id', updateRole);
+api.delete('/role/:id', deleteRole);
+api.get('/role/:id', getRole);
+api.post('/role', createRole);
 
 api.post('/bidding', createBidding);
 api.get('/biddings', getListBiddings);

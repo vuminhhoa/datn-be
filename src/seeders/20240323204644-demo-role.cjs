@@ -14,14 +14,22 @@ module.exports = {
      */
     return queryInterface.bulkInsert('Roles', [
       {
-        alias: 'admin',
         name: 'Quản trị viên',
         createdAt: new Date(),
         updatedAt: new Date(),
       },
       {
-        alias: 'user',
+        name: 'Nhân viên',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
         name: 'Người dùng',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+      {
+        name: 'Quản lý',
         createdAt: new Date(),
         updatedAt: new Date(),
       },

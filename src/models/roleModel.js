@@ -4,9 +4,6 @@ import { sequelize } from '../config/sequelizeConfig.js';
 const Role = sequelize.define(
   'Role',
   {
-    alias: {
-      type: DataTypes.STRING,
-    },
     name: {
       type: DataTypes.STRING,
     },
