@@ -1,5 +1,14 @@
 import { Sequelize } from 'sequelize';
-import 'dotenv/config';
+import dotenv from 'dotenv';
+const env = process.env.NODE_ENV || 'development';
+
+if (env === 'development') {
+  dotenv.config({ path: '.env.development' });
+}
+if (env === 'production') {
+  dotenv.config();
+}
+
 export const sequelize = new Sequelize(
   process.env.DB_NAME,
   process.env.DB_USERNAME,
