@@ -78,9 +78,11 @@ export async function updateUser(req, res) {
         message: 'Người dùng không tồn tại trên hệ thống!',
       });
     }
-    if (!!userInDb.image && userInDb.image !== data.image) {
-      const oldImageId = getCloudinaryFileIdFromUrl({ url: userInDb.image });
-      await cloudinary.uploader.destroy(oldImageId);
+    if (userInDb.image !== data.image) {
+      if (userInDb.image !== null) {
+        const oldImageId = getCloudinaryFileIdFromUrl({ url: userInDb.image });
+        await cloudinary.uploader.destroy(oldImageId);
+      }
       const result = await cloudinary.uploader.upload(data.image, {
         folder: 'user_images',
       });
