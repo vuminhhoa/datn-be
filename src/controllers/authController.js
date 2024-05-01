@@ -2,6 +2,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User, Permission, Role } from '../models/index.js';
+import { USER } from '../const/role.js';
 
 const salt = bcrypt.genSaltSync(10);
 export async function register(req, res) {
@@ -16,10 +17,14 @@ export async function register(req, res) {
         message: 'Tài khoản đã tồn tại trên hệ thống!',
       });
     let hashPassword = bcrypt.hashSync(password, salt);
+    const userRole = await Role.findOne({
+      where: { name: USER },
+      attributes: ['id'],
+    });
     const createdUser = await User.create({
       ...req.body,
       password: hashPassword,
-      RoleId: role ? role : 1,
+      RoleId: role ? role : userRole.id,
     });
     await createdUser.save();
     return res.send({ success: true, data: createdUser });
