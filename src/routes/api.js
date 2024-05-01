@@ -53,7 +53,7 @@ api.post('/auth/login', login);
 api.post('/auth/verify', verify);
 
 api.get('/roles', authMiddleware, checkPermission(ROLE_READ), getRoles);
-api.post('/role/:id', authMiddleware, checkPermission(ROLE_UPDATE), updateRole);
+api.put('/role/:id', authMiddleware, checkPermission(ROLE_UPDATE), updateRole);
 api.delete(
   '/role/:id',
   authMiddleware,
@@ -81,7 +81,7 @@ api.get(
   checkPermission(BIDDING_READ),
   getOneBidding
 );
-api.post(
+api.put(
   '/bidding/:id',
   authMiddleware,
   checkPermission(BIDDING_UPDATE),
@@ -95,7 +95,7 @@ api.delete(
 );
 
 api.get('/user/:id', authMiddleware, checkPermission(USER_READ), getOneUser);
-api.post('/user', authMiddleware, checkPermission(USER_UPDATE), updateUser);
+api.put('/user', authMiddleware, checkPermission(USER_UPDATE), updateUser);
 api.delete(
   '/user/:id',
   authMiddleware,
@@ -117,7 +117,7 @@ api.post(
   createEquipment
 );
 api.put(
-  '/equipment',
+  '/equipment/:id',
   authMiddleware,
   checkPermission(EQUIPMENT_UPDATE),
   updateEquipment

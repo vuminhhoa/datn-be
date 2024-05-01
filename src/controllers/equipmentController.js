@@ -1,14 +1,17 @@
 // @ts-nocheck
-import { Equipment, Role, Permission } from '../models/index.js';
+import { Equipment } from '../models/index.js';
+import cloudinary from '../services/cloudinaryService.js';
+import { getCloudinaryFileIdFromUrl } from '../helpers/cloudinaryHelper.js';
 
 export async function deleteEquipment(req, res) {
   try {
     const { id } = req.params;
-    await Equipment.destroy({
-      where: {
-        id: id,
-      },
-    });
+    const equipmentInDb = await Equipment.findOne({ where: { id: id } });
+    if (!equipmentInDb) {
+      return res.send({ success: false, message: 'Thiết bị không tồn tại' });
+    }
+    await equipmentInDb.destroy();
+
     return res.send({ success: true });
   } catch (error) {
     console.log(error);
@@ -41,8 +44,10 @@ export async function getOneEquipment(req, res) {
       where: {
         id: id,
       },
-      include: { model: Role, include: Permission },
     });
+    if (!equipment) {
+      return res.send({ success: false, message: 'Không tìm thấy thiết bị!' });
+    }
     return res.send({ equipment: equipment, success: true });
   } catch (error) {
     console.log(error);
@@ -56,7 +61,27 @@ export async function getOneEquipment(req, res) {
 
 export async function updateEquipment(req, res) {
   try {
+    const { id } = req.params;
     const data = req.body;
+    const equipmentInDb = await Equipment.findOne({ where: { id: id } });
+    if (!equipmentInDb) {
+      return res.send({ success: false, message: 'Thiết bị không tồn tại' });
+    }
+
+    if (equipmentInDb.image !== data.image) {
+      if (equipmentInDb.image !== null) {
+        const oldImageId = getCloudinaryFileIdFromUrl({
+          url: equipmentInDb.image,
+        });
+        await cloudinary.uploader.destroy(oldImageId);
+      }
+      const result = await cloudinary.uploader.upload(data.image, {
+        folder: 'equipment_images',
+      });
+
+      data.image = result?.secure_url;
+    }
+
     await Equipment.update(data, {
       where: {
         id: data.id,
