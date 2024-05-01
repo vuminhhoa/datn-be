@@ -47,8 +47,13 @@ export async function getOneUser(req, res) {
       },
       include: { model: Role, include: Permission },
     });
+    if (!user) {
+      return res.send({
+        success: false,
+        message: 'Người dùng không tồn tại',
+      });
+    }
     return res.send({ user: user, success: true });
-    // const accessToken = req.body;
   } catch (error) {
     console.log(error);
     return res.send({
@@ -76,12 +81,12 @@ export async function updateUser(req, res) {
     if (!!userInDb.image && userInDb.image !== data.image) {
       const oldImageId = getCloudinaryFileIdFromUrl({ url: userInDb.image });
       await cloudinary.uploader.destroy(oldImageId);
-    }
-    const result = await cloudinary.uploader.upload(data.image, {
-      folder: 'user_images',
-    });
+      const result = await cloudinary.uploader.upload(data.image, {
+        folder: 'user_images',
+      });
 
-    data.image = result?.secure_url;
+      data.image = result?.secure_url;
+    }
 
     await User.update(data, {
       where: {

@@ -16,7 +16,11 @@ export async function createBidding(req, res) {
 export async function updateBidding(req, res) {
   try {
     const data = req.body;
-    const filteredData = filterFields(data, ['updatedAt', 'createdAt']);
+    const filteredData = filterFields(data, [
+      'updatedAt',
+      'createdAt',
+      'deletedFields',
+    ]);
     const biddingInDb = await Bidding.findOne({
       where: {
         id: data.id,
@@ -36,6 +40,21 @@ export async function updateBidding(req, res) {
         value,
       })
     );
+
+    if (data.deletedFields.length !== 0) {
+      for (const field of data.deletedFields) {
+        const oldFileId = decodeURIComponent(
+          getCloudinaryFileIdFromUrl({
+            url: biddingInDb[field],
+            useExt: true,
+          })
+        );
+        await cloudinary.uploader.destroy(oldFileId, {
+          resource_type: 'raw',
+        });
+      }
+    }
+
     for (const document of documentsArrayData) {
       if (document.value === biddingInDb[document.key]) {
         continue;

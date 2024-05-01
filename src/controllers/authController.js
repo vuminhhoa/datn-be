@@ -47,7 +47,7 @@ export async function login(req, res) {
         success: false,
         message: 'Tài khoản hoặc mật khẩu không chính xác',
       });
-    const accessToken = jwt.sign({ user }, 'secretkey', {
+    const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, {
       expiresIn: '7d',
     });
     return res.send({
@@ -68,10 +68,14 @@ export async function login(req, res) {
 export async function verify(req, res) {
   try {
     const { accessToken } = req.body;
-    const reqData = jwt.verify(accessToken, 'secretkey', (error, decoded) => {
-      if (error) return res.send({ success: false, error: error });
-      return decoded;
-    });
+    const reqData = jwt.verify(
+      accessToken,
+      process.env.ACCESS_TOKEN_SECRET,
+      (error, decoded) => {
+        if (error) return res.send({ success: false, error: error });
+        return decoded;
+      }
+    );
     const userInDb = await User.findOne({
       where: { email: reqData.user.email },
       include: { model: Role, include: Permission },
