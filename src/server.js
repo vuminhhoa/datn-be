@@ -11,10 +11,12 @@ const limiter = rateLimit({
   limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
   standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+  validate: {xForwardedForHeader: false}
   // store: ... , // Redis, Memcached, etc. See below.
 });
 
 app.use(limiter);
+app.enable('trust proxy')
 app.use(cors({ origin: process.env.REACT_APP_BASE_URL }));
 app.use(express.json({ limit: '50mb' }));
 app.use('/api', api);
