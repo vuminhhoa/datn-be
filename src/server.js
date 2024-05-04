@@ -6,14 +6,14 @@ import api from './routes/api.js';
 import cors from 'cors';
 import { rateLimit } from 'express-rate-limit';
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
-  standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-  validate: {xForwardedForHeader: false}
-  // store: ... , // Redis, Memcached, etc. See below.
-});
+// const limiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15 minutes
+//   limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+//   standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+//   legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+//   validate: {xForwardedForHeader: false}
+//   // store: ... , // Redis, Memcached, etc. See below.
+// });
 
 app.use(limiter);
 app.set('trust proxy', 1)
