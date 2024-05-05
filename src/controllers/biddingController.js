@@ -1,12 +1,16 @@
-import { Bidding } from '../models/index.js';
+import { Bidding, Activity } from '../models/index.js';
 import cloudinary from '../services/cloudinaryService.js';
 import { getCloudinaryFileIdFromUrl } from '../helpers/cloudinaryHelper.js';
 
 export async function createBidding(req, res) {
   try {
     const data = req.body;
-    console.log(data);
     const createdBidding = await Bidding.create({ ...data });
+    await Activity.create({
+      ActorId: req.user.id,
+      action: 'đã tạo mới hoạt động mua sắm đấu thầu',
+      BiddingId: createdBidding.id,
+    });
     return res.send({ data: createdBidding, success: true });
   } catch (error) {
     console.log(error);
@@ -87,6 +91,11 @@ export async function updateBidding(req, res) {
         id: filteredData.id,
       },
     });
+    await Activity.create({
+      ActorId: req.user.id,
+      action: 'đã cập nhật hoạt động mua sắm đấu thầu',
+      BiddingId: filteredData.id,
+    });
     return res.send({ success: true });
   } catch (error) {
     console.log(error);
@@ -136,6 +145,10 @@ export async function deleteBidding(req, res) {
         });
       }
     }
+    await Activity.create({
+      ActorId: req.user.id,
+      action: `đã xóa hoạt động mua sắm đấu thầu ${biddingInDb.tenDeXuat}`,
+    });
 
     await Bidding.destroy({
       where: {

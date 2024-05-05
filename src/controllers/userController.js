@@ -1,14 +1,22 @@
-import { User, Role, Permission } from '../models/index.js';
+import { User, Role, Permission, Activity } from '../models/index.js';
 import cloudinary from '../services/cloudinaryService.js';
 import { getCloudinaryFileIdFromUrl } from '../helpers/cloudinaryHelper.js';
 
 export async function deleteUser(req, res) {
   try {
     const { id } = req.params;
+    const user = await User.findOne({ where: { id: id } });
+    if (!user) {
+      return res.send({ success: false, message: 'Người dùng không tồn tại' });
+    }
     await User.destroy({
       where: {
         id: id,
       },
+    });
+    await Activity.create({
+      ActorId: req.user.id,
+      action: `đã xóa người dùng ${user?.name || user.email}`,
     });
     return res.send({ success: true });
   } catch (error) {
@@ -94,6 +102,11 @@ export async function updateUser(req, res) {
       where: {
         id: data.id,
       },
+    });
+    await Activity.create({
+      ActorId: req.user.id,
+      action: `đã cập nhật người dùng`,
+      UserId: data.id,
     });
     return res.send({ success: true });
   } catch (error) {

@@ -1,4 +1,10 @@
-import { Permission, Role, User, Role_Permissions } from '../models/index.js';
+import {
+  Permission,
+  Role,
+  User,
+  Role_Permissions,
+  Activity,
+} from '../models/index.js';
 
 export async function getRole(req, res) {
   try {
@@ -84,7 +90,11 @@ export async function updateRole(req, res) {
         }
       }
     }
-
+    await Activity.create({
+      ActorId: req.user.id,
+      action: 'đã cập nhật vai trò',
+      RoleId: roleId,
+    });
     return res.send({ success: true });
   } catch (error) {
     console.log(error);
@@ -130,7 +140,10 @@ export async function deleteRole(req, res) {
     for (const user of roleInDb.Users) {
       await user.update({ RoleId: 7 });
     }
-
+    await Activity.create({
+      ActorId: req.user.id,
+      action: `đã xóa vai trò ${roleInDb.name}`,
+    });
     await roleInDb.destroy();
 
     return res.send({ success: true });
@@ -168,7 +181,11 @@ export async function createRole(req, res) {
         PermissionId: permissionInfo.id,
       });
     }
-
+    await Activity.create({
+      ActorId: req.user.id,
+      action: 'đã tạo vai trò',
+      RoleId: newRole.id,
+    });
     return res.send({ success: true });
   } catch (error) {
     console.log(error);

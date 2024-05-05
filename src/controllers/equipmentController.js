@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { Equipment } from '../models/index.js';
+import { Equipment, Activity } from '../models/index.js';
 import cloudinary from '../services/cloudinaryService.js';
 import { getCloudinaryFileIdFromUrl } from '../helpers/cloudinaryHelper.js';
 
@@ -10,6 +10,11 @@ export async function deleteEquipment(req, res) {
     if (!equipmentInDb) {
       return res.send({ success: false, message: 'Thiết bị không tồn tại' });
     }
+    await Activity.create({
+      ActorId: req.user.id,
+      action: `đã xóa thiết bị ${equipmentInDb.name}`,
+    });
+
     await equipmentInDb.destroy();
 
     return res.send({ success: true });
@@ -81,7 +86,11 @@ export async function updateEquipment(req, res) {
 
       data.image = result?.secure_url;
     }
-
+    await Activity.create({
+      ActorId: req.user.id,
+      action: 'đã cập nhật thiết bị',
+      EquipmentId: data.id,
+    });
     await Equipment.update(data, {
       where: {
         id: data.id,
@@ -102,6 +111,11 @@ export async function createEquipment(req, res) {
   try {
     const data = req.body;
     const createdEquipment = await Equipment.create({ ...data });
+    await Activity.create({
+      ActorId: req.user.id,
+      action: 'đã tạo mới thiết bị',
+      EquipmentId: createdEquipment.id,
+    });
     return res.send({ data: createdEquipment, success: true });
   } catch (error) {
     console.log(error);
