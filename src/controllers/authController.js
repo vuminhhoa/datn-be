@@ -31,8 +31,7 @@ export async function register(req, res) {
     if (isCreateUser) {
       await Activity.create({
         ActorId: actorId,
-        action: `đã tạo mới người dùng`,
-        UserId: createdUser.id,
+        action: `đã tạo mới người dùng ${createdUser.name || createdUser.email}`,
       });
     }
     return res.send({ success: true, data: createdUser });

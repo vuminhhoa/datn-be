@@ -12,7 +12,7 @@ export async function deleteEquipment(req, res) {
     }
     await Activity.create({
       ActorId: req.user.id,
-      action: `đã xóa thiết bị ${equipmentInDb.name}`,
+      action: `đã xóa thiết bị ${equipmentInDb.tenThietBi || equipmentInDb.code}`,
     });
 
     await equipmentInDb.destroy();
@@ -88,7 +88,7 @@ export async function updateEquipment(req, res) {
     }
     await Activity.create({
       ActorId: req.user.id,
-      action: `đã cập nhật thiết bị ${data?.name || data.code}`,
+      action: `đã cập nhật thiết bị ${equipmentInDb.tenThietBi || equipmentInDb.code}`,
     });
     await Equipment.update(data, {
       where: {
@@ -112,7 +112,7 @@ export async function createEquipment(req, res) {
     const createdEquipment = await Equipment.create({ ...data });
     await Activity.create({
       ActorId: req.user.id,
-      action: `đã tạo mới thiết bị ${createdEquipment.name}`,
+      action: `đã tạo mới thiết bị ${createdEquipment.tenThietBi}`,
     });
     return res.send({ data: createdEquipment, success: true });
   } catch (error) {
