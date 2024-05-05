@@ -173,7 +173,12 @@ export async function getOneBidding(req, res) {
       },
       raw: true,
     });
-
+    if (!bidding) {
+      return res.send({
+        success: false,
+        message: 'Hoạt động không tồn tại trên hệ thống!',
+      });
+    }
     return res.send(prepareDate(bidding));
   } catch (error) {
     console.log(error);
