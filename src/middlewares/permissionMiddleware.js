@@ -1,6 +1,6 @@
 import { Role_Permissions, Permission } from '../models/index.js';
 
-export const checkPermission = (permission) => {
+export const permission = (permission) => {
   return async (req, res, next) => {
     try {
       const user = req.user;

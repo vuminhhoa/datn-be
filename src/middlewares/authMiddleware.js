@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { User } from '../models/index.js';
 
-export const authMiddleware = async (req, res, next) => {
+export const auth = async (req, res, next) => {
   try {
     const accessToken = req.header('Authorization')?.split(' ')[1];
     if (!accessToken)
