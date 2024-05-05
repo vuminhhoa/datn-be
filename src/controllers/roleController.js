@@ -92,8 +92,7 @@ export async function updateRole(req, res) {
     }
     await Activity.create({
       ActorId: req.user.id,
-      action: 'đã cập nhật vai trò',
-      RoleId: roleId,
+      action: `đã cập nhật vai trò ${roleInDb.name}`,
     });
     return res.send({ success: true });
   } catch (error) {
@@ -183,8 +182,7 @@ export async function createRole(req, res) {
     }
     await Activity.create({
       ActorId: req.user.id,
-      action: 'đã tạo vai trò',
-      RoleId: newRole.id,
+      action: `đã tạo vai trò ${newRole.name}`,
     });
     return res.send({ success: true });
   } catch (error) {

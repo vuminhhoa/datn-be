@@ -10,18 +10,6 @@ const Activity = sequelize.define(
     action: {
       type: DataTypes.STRING,
     },
-    RoleId: {
-      type: DataTypes.INTEGER,
-    },
-    EquipmentId: {
-      type: DataTypes.INTEGER,
-    },
-    UserId: {
-      type: DataTypes.INTEGER,
-    },
-    BiddingId: {
-      type: DataTypes.INTEGER,
-    },
   },
   {}
 );

@@ -23,12 +23,6 @@ Permission.belongsToMany(Role, { through: 'Role_Permissions' });
 Role_Permissions.belongsTo(Role);
 Role_Permissions.belongsTo(Permission);
 
-Activity.belongsTo(User, { as: 'Actor', foreignKey: 'ActorId' });
-Activity.belongsTo(User, { as: 'User', foreignKey: 'UserId' });
-Activity.belongsTo(Bidding);
-Activity.belongsTo(Equipment);
-Activity.belongsTo(Role);
-
 export {
   Role,
   Permission,

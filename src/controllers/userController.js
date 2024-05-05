@@ -103,11 +103,13 @@ export async function updateUser(req, res) {
         id: data.id,
       },
     });
-    await Activity.create({
-      ActorId: req.user.id,
-      action: `đã cập nhật người dùng`,
-      UserId: data.id,
-    });
+    if (!data.isEditProfile && req.user.id !== data.id) {
+      await Activity.create({
+        ActorId: req.user.id,
+        action: `đã cập nhật người dùng ${data?.name || data.email}`,
+      });
+    }
+
     return res.send({ success: true });
   } catch (error) {
     console.log(error);

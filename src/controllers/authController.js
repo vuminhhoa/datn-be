@@ -1,13 +1,14 @@
 // @ts-nocheck
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { User, Permission, Role } from '../models/index.js';
+import { User, Permission, Role, Activity } from '../models/index.js';
 import { USER } from '../const/role.js';
 
 const salt = bcrypt.genSaltSync(10);
+
 export async function register(req, res) {
   try {
-    const { email, password, role } = req.body;
+    const { email, password, role, isCreateUser, actorId } = req.body;
     const user = await User.findOne({
       where: { email: email },
     });
@@ -27,6 +28,13 @@ export async function register(req, res) {
       RoleId: role ? role : userRole.id,
     });
     await createdUser.save();
+    if (isCreateUser) {
+      await Activity.create({
+        ActorId: actorId,
+        action: `đã tạo mới người dùng`,
+        UserId: createdUser.id,
+      });
+    }
     return res.send({ success: true, data: createdUser });
   } catch (error) {
     console.log(error);
