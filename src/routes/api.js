@@ -44,9 +44,13 @@ import {
   ROLE_READ,
   ROLE_UPDATE,
   ROLE_DELETE,
+  DASHBOARD_READ,
 } from '../const/permission.js';
+import { getDashboard } from '../controllers/dashboardController.js';
 import { permission } from '../middlewares/permissionMiddleware.js';
 const api = express.Router();
+
+api.get('/dashboard', auth, permission(DASHBOARD_READ), getDashboard);
 
 api.post('/auth/register', register);
 api.post('/auth/login', login);

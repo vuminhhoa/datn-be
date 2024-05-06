@@ -1,4 +1,10 @@
-import { User, Role, Permission, Activity } from '../models/index.js';
+import {
+  User,
+  Role,
+  Permission,
+  Activity,
+  Equipment,
+} from '../models/index.js';
 import cloudinary from '../services/cloudinaryService.js';
 import { getCloudinaryFileIdFromUrl } from '../helpers/cloudinaryHelper.js';
 
@@ -9,14 +15,15 @@ export async function deleteUser(req, res) {
     if (!user) {
       return res.send({ success: false, message: 'Người dùng không tồn tại' });
     }
+
     await User.destroy({
       where: {
         id: id,
       },
     });
     await Activity.create({
-      ActorId: req.user.id,
-      action: `đã xóa người dùng ${user?.name || user.email}`,
+      image: req.user?.image,
+      action: `${req.user?.name || req.user.email} đã xóa người dùng ${user?.name || user.email}`,
     });
     return res.send({ success: true });
   } catch (error) {
@@ -105,8 +112,8 @@ export async function updateUser(req, res) {
     });
     if (!data.isEditProfile && req.user.id !== data.id) {
       await Activity.create({
-        ActorId: req.user.id,
-        action: `đã cập nhật người dùng ${data?.name || data.email}`,
+        image: req.user?.image,
+        action: `${req.user?.name || req.user.email} đã cập nhật người dùng ${data?.name || data.email}`,
       });
     }
 

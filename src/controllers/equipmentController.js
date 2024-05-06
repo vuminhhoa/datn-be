@@ -11,8 +11,8 @@ export async function deleteEquipment(req, res) {
       return res.send({ success: false, message: 'Thiết bị không tồn tại' });
     }
     await Activity.create({
-      ActorId: req.user.id,
-      action: `đã xóa thiết bị ${equipmentInDb.tenThietBi || equipmentInDb.code}`,
+      image: req.user?.image,
+      action: `${req.user?.name || req.user.email} đã xóa thiết bị ${equipmentInDb.tenThietBi || equipmentInDb.code}`,
     });
 
     await equipmentInDb.destroy();
@@ -87,8 +87,8 @@ export async function updateEquipment(req, res) {
       data.image = result?.secure_url;
     }
     await Activity.create({
-      ActorId: req.user.id,
-      action: `đã cập nhật thiết bị ${equipmentInDb.tenThietBi || equipmentInDb.code}`,
+      image: req.user?.image,
+      action: `${req.user?.name || req.user.email} đã cập nhật thiết bị ${equipmentInDb.tenThietBi || equipmentInDb.code}`,
     });
     await Equipment.update(data, {
       where: {
@@ -111,8 +111,8 @@ export async function createEquipment(req, res) {
     const data = req.body;
     const createdEquipment = await Equipment.create({ ...data });
     await Activity.create({
-      ActorId: req.user.id,
-      action: `đã tạo mới thiết bị ${createdEquipment.tenThietBi}`,
+      image: req.user?.image,
+      action: `${req.user?.name || req.user.email} đã tạo mới thiết bị ${createdEquipment.tenThietBi}`,
     });
     return res.send({ data: createdEquipment, success: true });
   } catch (error) {

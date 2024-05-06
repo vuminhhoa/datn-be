@@ -7,8 +7,8 @@ export async function createBidding(req, res) {
     const data = req.body;
     const createdBidding = await Bidding.create({ ...data });
     await Activity.create({
-      ActorId: req.user.id,
-      action: `đã tạo mới hoạt động mua sắm đấu thầu ${createdBidding.tenDeXuat}`,
+      image: req.user?.image,
+      action: `${req.user?.name || req.user.email} đã tạo mới hoạt động mua sắm đấu thầu ${createdBidding.tenDeXuat}`,
     });
     return res.send({ data: createdBidding, success: true });
   } catch (error) {
@@ -91,8 +91,8 @@ export async function updateBidding(req, res) {
       },
     });
     await Activity.create({
-      ActorId: req.user.id,
-      action: `đã cập nhật hoạt động mua sắm đấu thầu ${filteredData.tenDeXuat}`,
+      image: req.user?.image,
+      action: `${req.user?.name || req.user.email} đã cập nhật hoạt động mua sắm đấu thầu ${filteredData.tenDeXuat}`,
     });
     return res.send({ success: true });
   } catch (error) {
@@ -144,8 +144,8 @@ export async function deleteBidding(req, res) {
       }
     }
     await Activity.create({
-      ActorId: req.user.id,
-      action: `đã xóa hoạt động mua sắm đấu thầu ${biddingInDb.tenDeXuat}`,
+      image: req.user?.image,
+      action: `${req.user?.name || req.user.email} đã xóa hoạt động mua sắm đấu thầu ${biddingInDb.tenDeXuat}`,
     });
 
     await Bidding.destroy({
