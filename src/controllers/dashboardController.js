@@ -23,8 +23,8 @@ export async function getDashboard(req, res) {
     const data = {
       countEquipments: equipments.length,
       countUsers: users.length,
-      countBidding: biddings.length,
-      countNonBidding: 0,
+      countBiddings: biddings.length,
+      countNonBiddings: 0,
       activities: activities.map((activity) => ({
         ...activity,
         createdAt: timeAgo(activity.createdAt),
