@@ -20,8 +20,8 @@ export async function deleteUser(req, res) {
       action: `đã xóa người dùng`,
       actor: req.user,
       target: {
-        id: userInDb.id,
-        name: userInDb.name || userInDb.email,
+        id: user.id,
+        name: user.name || user.email,
         type: 'user',
       },
     });
