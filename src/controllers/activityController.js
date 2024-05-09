@@ -9,30 +9,21 @@ const timeAgo = (date) => {
   });
 };
 
-export async function getDashboard(req, res) {
+export async function getActivities(req, res) {
   try {
-    const equipments = await Equipment.findAll();
-    const biddings = await Bidding.findAll();
-    const users = await User.findAll();
     const activities = await Activity.findAll({
       order: [['createdAt', 'DESC']],
-      limit: 11,
       raw: true,
     });
 
     const data = {
-      countEquipments: equipments.length,
-      countUsers: users.length,
-      countBiddings: biddings.length,
-      countNonBiddings: 0,
       activities: activities.map((activity) => ({
         ...activity,
         createdAt: timeAgo(activity.createdAt),
       })),
-      hasNext: activities.length === 11,
     };
 
-    return res.send({ activities: data, success: true });
+    return res.send({ ...data, success: true });
   } catch (error) {
     console.log(error);
     return res.send({

@@ -91,8 +91,13 @@ export async function updateRole(req, res) {
       }
     }
     await Activity.create({
-      image: req.user?.image,
-      action: `${req.user?.name || req.user.email} đã cập nhật vai trò ${roleInDb.name}`,
+      actor: req.user,
+      action: `đã cập nhật vai trò`,
+      target: {
+        id: roleInDb.id,
+        name: roleInDb.name,
+        type: 'role',
+      },
     });
     return res.send({ success: true });
   } catch (error) {
@@ -140,8 +145,13 @@ export async function deleteRole(req, res) {
       await user.update({ RoleId: 7 });
     }
     await Activity.create({
-      image: req.user?.image,
-      action: `${req.user?.name || req.user.email} đã xóa vai trò ${roleInDb.name}`,
+      actor: req.user,
+      action: `đã xóa vai trò`,
+      target: {
+        id: roleInDb.id,
+        name: roleInDb.name,
+        type: 'role',
+      },
     });
     await roleInDb.destroy();
 
@@ -181,8 +191,13 @@ export async function createRole(req, res) {
       });
     }
     await Activity.create({
-      image: req.user?.image,
-      action: `${req.user?.name || req.user.email} đã tạo vai trò ${newRole.name}`,
+      actor: req.user,
+      action: `đã tạo vai trò`,
+      target: {
+        id: newRole.id,
+        name: newRole.name,
+        type: 'role',
+      },
     });
     return res.send({ success: true });
   } catch (error) {

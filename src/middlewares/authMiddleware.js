@@ -29,7 +29,8 @@ export const auth = async (req, res, next) => {
           id: data.user.id,
           RoleId: data.user.RoleId,
         },
-        raw: false,
+        attributes: ['id', 'name', 'email', 'image', 'RoleId'],
+        raw: true,
       });
       if (!user)
         return res.send({

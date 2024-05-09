@@ -7,8 +7,13 @@ export async function createBidding(req, res) {
     const data = req.body;
     const createdBidding = await Bidding.create({ ...data });
     await Activity.create({
-      image: req.user?.image,
-      action: `${req.user?.name || req.user.email} đã tạo mới hoạt động mua sắm đấu thầu ${createdBidding.tenDeXuat}`,
+      actor: req.user,
+      action: `đã tạo mới hoạt động mua sắm đấu thầu`,
+      target: {
+        id: createdBidding.id,
+        name: createdBidding.tenDeXuat,
+        type: 'bidding',
+      },
     });
     return res.send({ data: createdBidding, success: true });
   } catch (error) {
@@ -91,8 +96,13 @@ export async function updateBidding(req, res) {
       },
     });
     await Activity.create({
-      image: req.user?.image,
-      action: `${req.user?.name || req.user.email} đã cập nhật hoạt động mua sắm đấu thầu ${filteredData.tenDeXuat}`,
+      actor: req.user,
+      action: `đã cập nhật hoạt động mua sắm đấu thầu`,
+      target: {
+        id: filteredData.id,
+        name: filteredData.tenDeXuat,
+        type: 'bidding',
+      },
     });
     return res.send({ success: true });
   } catch (error) {
@@ -144,8 +154,13 @@ export async function deleteBidding(req, res) {
       }
     }
     await Activity.create({
-      image: req.user?.image,
-      action: `${req.user?.name || req.user.email} đã xóa hoạt động mua sắm đấu thầu ${biddingInDb.tenDeXuat}`,
+      actor: req.user,
+      action: `đã xóa hoạt động mua sắm đấu thầu`,
+      target: {
+        id: biddingInDb.id,
+        name: biddingInDb.tenDeXuat,
+        type: 'bidding',
+      },
     });
 
     await Bidding.destroy({

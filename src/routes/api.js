@@ -48,9 +48,12 @@ import {
 } from '../const/permission.js';
 import { getDashboard } from '../controllers/dashboardController.js';
 import { permission } from '../middlewares/permissionMiddleware.js';
+import { getActivities } from '../controllers/activityController.js';
+
 const api = express.Router();
 
 api.get('/dashboard', auth, permission(DASHBOARD_READ), getDashboard);
+api.get('/activities', auth, permission(DASHBOARD_READ), getActivities);
 
 api.post('/auth/register', register);
 api.post('/auth/login', login);

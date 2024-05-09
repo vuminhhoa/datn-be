@@ -16,14 +16,20 @@ export async function deleteUser(req, res) {
       return res.send({ success: false, message: 'Người dùng không tồn tại' });
     }
 
+    await Activity.create({
+      action: `đã xóa người dùng`,
+      actor: req.user,
+      target: {
+        id: userInDb.id,
+        name: userInDb.name || userInDb.email,
+        type: 'user',
+      },
+    });
+
     await User.destroy({
       where: {
         id: id,
       },
-    });
-    await Activity.create({
-      image: req.user?.image,
-      action: `${req.user?.name || req.user.email} đã xóa người dùng ${user?.name || user.email}`,
     });
     return res.send({ success: true });
   } catch (error) {
@@ -112,8 +118,13 @@ export async function updateUser(req, res) {
     });
     if (!data.isEditProfile && req.user.id !== data.id) {
       await Activity.create({
-        image: req.user?.image,
-        action: `${req.user?.name || req.user.email} đã cập nhật người dùng ${data?.name || data.email}`,
+        actor: req.user,
+        action: `đã cập nhật người dùng`,
+        target: {
+          id: userInDb.id,
+          name: userInDb.name || userInDb.email,
+          type: 'user',
+        },
       });
     }
 

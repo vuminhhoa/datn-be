@@ -10,6 +10,12 @@ const Activity = sequelize.define(
     image: {
       type: DataTypes.STRING,
     },
+    actor: {
+      type: DataTypes.JSON,
+    },
+    target: {
+      type: DataTypes.JSON,
+    },
   },
   {}
 );

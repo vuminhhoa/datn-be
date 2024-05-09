@@ -31,8 +31,13 @@ export async function register(req, res) {
     if (isCreateUser) {
       const userActor = await User.findOne({ where: { id: actorId } });
       await Activity.create({
-        image: userActor?.image,
-        action: `${userActor?.name || userActor.email} đã tạo mới người dùng ${createdUser?.name || createdUser.email}`,
+        actor: userActor,
+        action: `đã tạo mới người dùng`,
+        target: {
+          id: createdUser.id,
+          name: createdUser?.name || createdUser.email,
+          type: 'user',
+        },
       });
     }
     return res.send({ success: true, data: createdUser });
