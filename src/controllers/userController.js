@@ -101,7 +101,10 @@ export async function updateUser(req, res) {
     }
     if (userInDb.image !== data.image) {
       if (userInDb.image !== null) {
-        const oldImageId = getCloudinaryFileIdFromUrl({ url: userInDb.image });
+        const oldImageId = getCloudinaryFileIdFromUrl({
+          url: userInDb.image,
+          useExt: true,
+        });
         await cloudinary.uploader.destroy(oldImageId);
       }
       const result = await cloudinary.uploader.upload(data.image, {
