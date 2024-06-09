@@ -11,6 +11,7 @@ import {
   getListEquipments,
   createEquipment,
   deleteEquipment,
+  createEquipments,
   updateEquipment,
 } from '../controllers/equipmentController.js';
 import {
@@ -78,6 +79,12 @@ api.get('/users', auth, permission(USER_READ), getListUsers);
 
 api.get('/equipment/:id', auth, permission(EQUIPMENT_READ), getOneEquipment);
 api.post('/equipment', auth, permission(EQUIPMENT_CREATE), createEquipment);
+api.post(
+  '/equipments/importByExcel',
+  auth,
+  permission(EQUIPMENT_CREATE),
+  createEquipments
+);
 api.put('/equipment/:id', auth, permission(EQUIPMENT_UPDATE), updateEquipment);
 api.delete(
   '/equipment/:id',

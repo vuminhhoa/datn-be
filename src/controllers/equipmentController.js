@@ -134,3 +134,27 @@ export async function createEquipment(req, res) {
     console.log(error);
   }
 }
+
+export async function createEquipments(req, res) {
+  let data = req.body;
+
+  if (!Array.isArray(data) || data.length === 0) {
+    return res.status(400).json({ error: 'Invalid data array' });
+  }
+
+  data = data.map((item) => ({
+    ...item,
+    phanLoaiNhap: 'Nhập Excel',
+  }));
+
+  try {
+    const createdEquipments = await Equipment.bulkCreate(data);
+    await Activity.create({
+      actor: req.user,
+      action: `đã nhập ${data.length} thiết bị từ file excel`,
+    });
+    return res.send({ data: createdEquipments, success: true });
+  } catch (error) {
+    console.log(error);
+  }
+}
