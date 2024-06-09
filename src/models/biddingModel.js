@@ -109,6 +109,7 @@ const Bidding = sequelize.define(
     ngayBanGiaoDuaVaoSuDung: { type: DataTypes.STRING, allowNull: true },
     taiLieuBaoLanhBaoHanh: { type: DataTypes.STRING, allowNull: true },
     ngayNopBaoLanhBaoHanh: { type: DataTypes.STRING, allowNull: true },
+    eHsdt: { type: DataTypes.JSON, allowNull: true },
   },
   {}
 );
