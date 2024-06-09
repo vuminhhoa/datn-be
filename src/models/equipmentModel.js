@@ -29,7 +29,7 @@ const Equipment = sequelize.define(
       allowNull: true,
     },
     donGia: {
-      type: DataTypes.STRING,
+      type: DataTypes.INTEGER,
       allowNull: true,
     },
     phanKhoa: {

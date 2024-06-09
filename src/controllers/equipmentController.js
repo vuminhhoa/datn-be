@@ -2,6 +2,7 @@
 import { Equipment, Activity } from '../models/index.js';
 import cloudinary from '../services/cloudinaryService.js';
 import { getCloudinaryFileIdFromUrl } from '../helpers/cloudinaryHelper.js';
+import { Op } from 'sequelize';
 
 export async function deleteEquipment(req, res) {
   try {
@@ -34,9 +35,63 @@ export async function deleteEquipment(req, res) {
 }
 
 export async function getListEquipments(req, res) {
+  const {
+    page = 1,
+    limit = 10,
+    search,
+    sortKey = 'createdAt',
+    direction = 'ASC',
+    phanKhoa,
+    donVi,
+    xuatXu,
+    phanLoaiNhap,
+  } = req.query;
+
+  const offset = (page - 1) * limit;
+
   try {
-    const equipments = await Equipment.findAll();
-    return res.send(equipments);
+    let condition = {};
+
+    const createCondition = (field, value) => {
+      if (value) {
+        condition[field] = {
+          [Op.or]: value
+            .split(',')
+            .map((v) => ({ [Op.like]: `%${v.trim()}%` })),
+        };
+      }
+    };
+
+    createCondition('phanKhoa', phanKhoa);
+    createCondition('donVi', donVi);
+    createCondition('xuatXu', xuatXu);
+    createCondition('phanLoaiNhap', phanLoaiNhap);
+
+    if (search) {
+      condition[Op.or] = [
+        { phanKhoa: { [Op.like]: `%${search}%` } },
+        { donVi: { [Op.like]: `%${search}%` } },
+        { xuatXu: { [Op.like]: `%${search}%` } },
+        { phanLoaiNhap: { [Op.like]: `%${search}%` } },
+        { tenThietBi: { [Op.like]: `%${search}%` } },
+      ];
+    }
+
+    const { rows, count } = await Equipment.findAndCountAll({
+      where: condition,
+      order: [[sortKey, direction]],
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+    });
+
+    return res.send({
+      success: true,
+      data: rows,
+      pageInfo: {
+        total: count,
+        limit: parseInt(limit),
+      },
+    });
   } catch (error) {
     console.log(error);
     return res.send({
@@ -46,7 +101,6 @@ export async function getListEquipments(req, res) {
     });
   }
 }
-
 export async function getOneEquipment(req, res) {
   try {
     const { id } = req.params;
