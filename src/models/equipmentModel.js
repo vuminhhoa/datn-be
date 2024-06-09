@@ -4,37 +4,40 @@ import { sequelize } from '../config/sequelizeConfig.js';
 const Equipment = sequelize.define(
   'Equipment',
   {
-    maThietBi: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
     tenThietBi: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    serial: {
+    donVi: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    model: {
+    soLuong: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    kyMaHieu: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    image: {
+    hangSanXuat: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    namSanXuat: {
+    xuatXu: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    khoaPhong: {
+    donGia: {
       type: DataTypes.STRING,
       allowNull: true,
     },
-    trangThai: {
+    phanKhoa: {
       type: DataTypes.STRING,
-      defaultValue: 'Mới nhập',
+      allowNull: true,
+    },
+    phanLoaiNhap: {
+      type: DataTypes.STRING,
       allowNull: true,
     },
   },
