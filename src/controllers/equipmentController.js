@@ -104,6 +104,23 @@ export async function getListEquipments(req, res) {
 export async function getOneEquipment(req, res) {
   try {
     const { id } = req.params;
+    const { key } = req.query;
+
+    if (key === 'kyMaHieu') {
+      const equipment = await Equipment.findOne({
+        where: {
+          kyMaHieu: id,
+        },
+      });
+      if (!equipment) {
+        return res.send({
+          success: false,
+          message: 'Không tìm thấy thiết bị!',
+        });
+      }
+      return res.send({ equipment: equipment, success: true });
+    }
+
     const equipment = await Equipment.findOne({
       where: {
         id: id,
@@ -202,6 +219,24 @@ export async function createEquipments(req, res) {
   }));
 
   try {
+    const existingEquipments = await Equipment.findAll({
+      attributes: ['kyMaHieu'],
+    });
+
+    const existingKyMaHieu = existingEquipments.map((equip) => equip.kyMaHieu);
+
+    const duplicates = data.filter((item) =>
+      existingKyMaHieu.includes(item.kyMaHieu)
+    );
+
+    if (duplicates.length > 0) {
+      return res.send({
+        data: duplicates,
+        success: false,
+        error: 'trungThietBi',
+      });
+    }
+
     const createdEquipments = await Equipment.bulkCreate(data);
     await Activity.create({
       actor: req.user,
@@ -210,5 +245,6 @@ export async function createEquipments(req, res) {
     return res.send({ data: createdEquipments, success: true });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({ error: 'Internal server error' });
   }
 }
