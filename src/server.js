@@ -20,27 +20,21 @@ const limiter = rateLimit({
 // Trust proxy
 app.set('trust proxy', 1);
 
-// Use CORS
-app.use(cors());
+// CORS options
+const corsOptions = {
+  // origin: ['http://frontend-domain.com', 'http://another-frontend-domain.com'],
+  methods: 'GET, POST, OPTIONS, PUT, PATCH, DELETE',
+  allowedHeaders:
+    'X-Requested-With, Content-Type, x-access-token, Authorization',
+  credentials: true,
+};
+
+// Use CORS with options
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '50mb' }));
 
 // Apply rate limiter to all requests
 app.use(limiter);
-
-// CORS middleware
-app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader(
-    'Access-Control-Allow-Methods',
-    'GET, POST, OPTIONS, PUT, PATCH, DELETE'
-  );
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-Requested-With, Content-Type, x-access-token, Authorization'
-  );
-  res.setHeader('Access-Control-Allow-Credentials', true);
-  next();
-});
 
 // Routes
 app.use('/api', api);
