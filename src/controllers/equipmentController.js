@@ -149,18 +149,18 @@ export async function updateEquipment(req, res) {
       return res.send({ success: false, message: 'Thiết bị không tồn tại' });
     }
 
-    if (equipmentInDb.image !== data.image) {
-      if (equipmentInDb.image !== null) {
+    if (data.hinhAnh && equipmentInDb.hinhAnh !== data.hinhAnh) {
+      if (equipmentInDb.hinhAnh !== null) {
         const oldImageId = getCloudinaryFileIdFromUrl({
-          url: equipmentInDb.image,
+          url: equipmentInDb.hinhAnh,
         });
         await cloudinary.uploader.destroy(oldImageId);
       }
-      const result = await cloudinary.uploader.upload(data.image, {
+      const result = await cloudinary.uploader.upload(data.hinhAnh, {
         folder: 'equipment_images',
       });
 
-      data.image = result?.secure_url;
+      data.hinhAnh = result?.secure_url;
     }
     await Activity.create({
       actor: req.user,

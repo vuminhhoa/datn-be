@@ -4,6 +4,10 @@ import { sequelize } from '../config/sequelizeConfig.js';
 const Equipment = sequelize.define(
   'Equipment',
   {
+    hinhAnh: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
     tenThietBi: {
       type: DataTypes.STRING,
       allowNull: true,
@@ -17,6 +21,10 @@ const Equipment = sequelize.define(
       allowNull: true,
     },
     kyMaHieu: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    serial: {
       type: DataTypes.STRING,
       allowNull: true,
     },
