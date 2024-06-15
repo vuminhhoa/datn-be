@@ -28,6 +28,13 @@ import {
   getRole,
   getRoles,
 } from '../controllers/roleController.js';
+import {
+  createDepartment,
+  deleteDepartment,
+  updateDepartment,
+  getDepartment,
+  getDepartments,
+} from '../controllers/departmentController.js';
 import { auth } from '../middlewares/authMiddleware.js';
 import {
   USER_READ,
@@ -46,6 +53,10 @@ import {
   ROLE_UPDATE,
   ROLE_DELETE,
   DASHBOARD_READ,
+  DEPARTMENT_READ,
+  DEPARTMENT_UPDATE,
+  DEPARTMENT_DELETE,
+  DEPARTMENT_CREATE,
 } from '../const/permission.js';
 import { getDashboard } from '../controllers/dashboardController.js';
 import { permission } from '../middlewares/permissionMiddleware.js';
@@ -65,6 +76,22 @@ api.put('/role/:id', auth, permission(ROLE_UPDATE), updateRole);
 api.delete('/role/:id', auth, permission(ROLE_DELETE), deleteRole);
 api.get('/role/:id', auth, permission(ROLE_READ), getRole);
 api.post('/role', auth, permission(ROLE_CREATE), createRole);
+
+api.get('/departments', auth, permission(DEPARTMENT_READ), getDepartments);
+api.put(
+  '/department/:id',
+  auth,
+  permission(DEPARTMENT_UPDATE),
+  updateDepartment
+);
+api.delete(
+  '/department/:id',
+  auth,
+  permission(DEPARTMENT_DELETE),
+  deleteDepartment
+);
+api.get('/department/:id', auth, permission(DEPARTMENT_READ), getDepartment);
+api.post('/department', auth, permission(DEPARTMENT_CREATE), createDepartment);
 
 api.post('/bidding', auth, permission(BIDDING_CREATE), createBidding);
 api.get('/biddings', auth, permission(BIDDING_READ), getListBiddings);

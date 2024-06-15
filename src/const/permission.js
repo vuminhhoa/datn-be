@@ -10,6 +10,11 @@ const EQUIPMENT_READ = 'Xem chi tiết thiết bị';
 const EQUIPMENT_UPDATE = 'Cập nhật thiết bị';
 const EQUIPMENT_DELETE = 'Xóa thiết bị';
 
+const DEPARTMENT_CREATE = 'Tạo khoa phòng';
+const DEPARTMENT_READ = 'Xem chi tiết khoa phòng';
+const DEPARTMENT_UPDATE = 'Cập nhật khoa phòng';
+const DEPARTMENT_DELETE = 'Xóa khoa phòng';
+
 const BIDDING_CREATE = 'Tạo hoạt động mua sắm đấu thầu';
 const BIDDING_READ = 'Xem chi tiết hoạt động mua sắm đấu thầu';
 const BIDDING_UPDATE = 'Cập nhật hoạt động mua sắm đấu thầu';
@@ -38,6 +43,10 @@ const ALL_PERMISSION = [
   ROLE_READ,
   ROLE_UPDATE,
   ROLE_DELETE,
+  DEPARTMENT_CREATE,
+  DEPARTMENT_READ,
+  DEPARTMENT_UPDATE,
+  DEPARTMENT_DELETE,
 ];
 
 const PERMISSION_GROUP = [
@@ -67,4 +76,8 @@ export {
   ROLE_DELETE,
   ALL_PERMISSION,
   PERMISSION_GROUP,
+  DEPARTMENT_CREATE,
+  DEPARTMENT_READ,
+  DEPARTMENT_UPDATE,
+  DEPARTMENT_DELETE,
 };

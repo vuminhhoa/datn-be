@@ -4,6 +4,7 @@ export const permission = (permission) => {
   return async (req, res, next) => {
     try {
       const user = req.user;
+      if (user.RoleId === 1) return next();
       let permissions = await Role_Permissions.findAll({
         where: { RoleId: user.RoleId },
         include: { model: Permission, attributes: ['name'] },
