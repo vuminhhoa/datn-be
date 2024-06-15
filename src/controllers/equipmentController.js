@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { Equipment, Activity } from '../models/index.js';
+import { Equipment, Activity, Department } from '../models/index.js';
 import cloudinary from '../services/cloudinaryService.js';
 import { getCloudinaryFileIdFromUrl } from '../helpers/cloudinaryHelper.js';
 import { Op } from 'sequelize';
@@ -41,9 +41,9 @@ export async function getListEquipments(req, res) {
     search,
     sortKey = 'createdAt',
     direction = 'ASC',
-    phanKhoa,
     donVi,
     xuatXu,
+    departmentIds,
     phanLoaiNhap,
   } = req.query;
 
@@ -62,14 +62,21 @@ export async function getListEquipments(req, res) {
       }
     };
 
-    createCondition('phanKhoa', phanKhoa);
+    if (departmentIds) {
+      if (departmentIds.includes('none')) {
+        condition.DepartmentId = { [Op.is]: null };
+      } else {
+        const departmentIdArray = departmentIds
+          .split(',')
+          .map((id) => parseInt(id.trim()));
+        condition.DepartmentId = departmentIdArray;
+      }
+    }
     createCondition('donVi', donVi);
     createCondition('xuatXu', xuatXu);
     createCondition('phanLoaiNhap', phanLoaiNhap);
-
     if (search) {
       condition[Op.or] = [
-        { phanKhoa: { [Op.like]: `%${search}%` } },
         { donVi: { [Op.like]: `%${search}%` } },
         { xuatXu: { [Op.like]: `%${search}%` } },
         { phanLoaiNhap: { [Op.like]: `%${search}%` } },
@@ -80,6 +87,7 @@ export async function getListEquipments(req, res) {
     const { rows, count } = await Equipment.findAndCountAll({
       where: condition,
       order: [[sortKey, direction]],
+      include: { model: Department },
       limit: parseInt(limit),
       offset: parseInt(offset),
     });
@@ -125,6 +133,7 @@ export async function getOneEquipment(req, res) {
       where: {
         id: id,
       },
+      include: { model: Department },
     });
     if (!equipment) {
       return res.send({ success: false, message: 'Không tìm thấy thiết bị!' });
@@ -213,11 +222,6 @@ export async function createEquipments(req, res) {
     return res.status(400).json({ error: 'Invalid data array' });
   }
 
-  data = data.map((item) => ({
-    ...item,
-    phanLoaiNhap: 'Nhập Excel',
-  }));
-
   try {
     const existingEquipments = await Equipment.findAll({
       attributes: ['kyMaHieu'],
@@ -236,8 +240,21 @@ export async function createEquipments(req, res) {
         error: 'trungThietBi',
       });
     }
+    const departments = await Department.findAll();
+    const preparedData = data.map((item) => {
+      const department = departments.find(
+        (dept) => dept.tenKhoaPhong === item.phanKhoa
+      );
+      if (department) {
+        item.DepartmentId = department.id;
+      }
+      return {
+        ...item,
+        phanLoaiNhap: 'Nhập Excel',
+      };
+    });
 
-    const createdEquipments = await Equipment.bulkCreate(data);
+    const createdEquipments = await Equipment.bulkCreate(preparedData);
     await Activity.create({
       actor: req.user,
       action: `đã nhập ${data.length} thiết bị từ file excel`,

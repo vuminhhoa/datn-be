@@ -55,7 +55,7 @@ export async function getListUsers(req, res) {
   try {
     const users = await User.findAll({
       attributes: ['id', 'name', 'email', 'image'],
-      include: Role,
+      include: [Role, Department],
     });
     return res.send({ data: users, success: true });
   } catch (error) {
