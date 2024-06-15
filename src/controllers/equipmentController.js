@@ -129,7 +129,7 @@ export async function getOneEquipment(req, res) {
     if (!equipment) {
       return res.send({ success: false, message: 'Không tìm thấy thiết bị!' });
     }
-    return res.send({ equipment: equipment, success: true });
+    return res.send({ data: equipment, success: true });
   } catch (error) {
     console.log(error);
     return res.send({

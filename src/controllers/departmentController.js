@@ -1,4 +1,4 @@
-import { Department, User, Permission, Activity } from '../models/index.js';
+import { Department, Activity } from '../models/index.js';
 import cloudinary from '../services/cloudinaryService.js';
 import { getCloudinaryFileIdFromUrl } from '../helpers/cloudinaryHelper.js';
 
@@ -14,7 +14,7 @@ export async function getDepartment(req, res) {
         message: 'Phòng ban không tồn tại',
       });
     }
-    return res.send({ department: department, success: true });
+    return res.send({ data: department, success: true });
   } catch (error) {
     console.log(error);
     return res.send({
@@ -189,7 +189,7 @@ export async function createDepartment(req, res) {
 export async function getDepartments(req, res) {
   try {
     const departments = await Department.findAll();
-    return res.send({ departments, success: true });
+    return res.send({ data: departments, success: true });
   } catch (error) {
     console.log(error);
     return res.send({

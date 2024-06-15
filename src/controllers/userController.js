@@ -3,6 +3,7 @@ import {
   Role,
   Permission,
   Activity,
+  Department,
   Equipment,
 } from '../models/index.js';
 import cloudinary from '../services/cloudinaryService.js';
@@ -14,6 +15,14 @@ export async function deleteUser(req, res) {
     const user = await User.findOne({ where: { id: id } });
     if (!user) {
       return res.send({ success: false, message: 'Người dùng không tồn tại' });
+    }
+
+    if (user.image !== null) {
+      const oldImageId = getCloudinaryFileIdFromUrl({
+        url: user.image,
+        useExt: true,
+      });
+      await cloudinary.uploader.destroy(oldImageId);
     }
 
     await Activity.create({
@@ -48,7 +57,7 @@ export async function getListUsers(req, res) {
       attributes: ['id', 'name', 'email', 'image'],
       include: Role,
     });
-    return res.send(users);
+    return res.send({ data: users, success: true });
   } catch (error) {
     console.log(error);
     return res.send({
@@ -66,7 +75,7 @@ export async function getOneUser(req, res) {
       where: {
         id: id,
       },
-      include: { model: Role, include: Permission },
+      include: [{ model: Role, include: Permission }, { model: Department }],
     });
     if (!user) {
       return res.send({
@@ -74,7 +83,7 @@ export async function getOneUser(req, res) {
         message: 'Người dùng không tồn tại',
       });
     }
-    return res.send({ user: user, success: true });
+    return res.send({ data: user, success: true });
   } catch (error) {
     console.log(error);
     return res.send({

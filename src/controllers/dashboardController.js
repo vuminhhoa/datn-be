@@ -32,7 +32,7 @@ export async function getDashboard(req, res) {
       hasNext: activities.length === 11,
     };
 
-    return res.send({ activities: data, success: true });
+    return res.send({ data: data, success: true });
   } catch (error) {
     console.log(error);
     return res.send({

@@ -9,17 +9,17 @@ import {
 export async function getRole(req, res) {
   try {
     const { id } = req.params;
-    const roles = await Role.findOne({
+    const role = await Role.findOne({
       where: { id: id },
       include: [{ model: Permission }, { model: User }],
     });
-    if (!roles) {
+    if (!role) {
       return res.send({
         success: false,
         message: 'Vai trò không tồn tại',
       });
     }
-    return res.send({ roles: roles, success: true });
+    return res.send({ data: role, success: true });
   } catch (error) {
     console.log(error);
     return res.send({
@@ -213,7 +213,7 @@ export async function createRole(req, res) {
 export async function getRoles(req, res) {
   try {
     const roles = await Role.findAll({ include: Permission });
-    return res.send({ roles, success: true });
+    return res.send({ data: roles, success: true });
   } catch (error) {
     console.log(error);
     return res.send({

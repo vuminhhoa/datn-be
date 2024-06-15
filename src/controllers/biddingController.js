@@ -194,7 +194,7 @@ export async function getOneBidding(req, res) {
         message: 'Hoạt động không tồn tại trên hệ thống!',
       });
     }
-    return res.send(prepareDate(bidding));
+    return res.send({ data: prepareDate(bidding), success: true });
   } catch (error) {
     console.log(error);
     return res.send({
@@ -218,7 +218,7 @@ export async function getListBiddings(req, res) {
       ],
       raw: true,
     });
-    return res.send(prepareDate(biddings));
+    return res.send({ data: prepareDate(biddings), success: true });
   } catch (error) {
     console.log(error);
     return res.send({

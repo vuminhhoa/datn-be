@@ -16,14 +16,12 @@ export async function getActivities(req, res) {
       raw: true,
     });
 
-    const data = {
-      activities: activities.map((activity) => ({
-        ...activity,
-        createdAt: timeAgo(activity.createdAt),
-      })),
-    };
+    const preparedData = activities.map((activity) => ({
+      ...activity,
+      createdAt: timeAgo(activity.createdAt),
+    }));
 
-    return res.send({ ...data, success: true });
+    return res.send({ data: preparedData, success: true });
   } catch (error) {
     console.log(error);
     return res.send({
