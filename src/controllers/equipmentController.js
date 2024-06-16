@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { Equipment, Activity, Department } from '../models/index.js';
+import { Equipment, Activity, Department, Bidding } from '../models/index.js';
 import cloudinary from '../services/cloudinaryService.js';
 import { getCloudinaryFileIdFromUrl } from '../helpers/cloudinaryHelper.js';
 import { Op } from 'sequelize';
@@ -11,6 +11,15 @@ export async function deleteEquipment(req, res) {
     if (!equipmentInDb) {
       return res.send({ success: false, message: 'Thiết bị không tồn tại' });
     }
+
+    if (equipmentInDb.hinhAnh !== null) {
+      const oldImageId = getCloudinaryFileIdFromUrl({
+        url: equipmentInDb.hinhAnh,
+        useExt: true,
+      });
+      await cloudinary.uploader.destroy(oldImageId);
+    }
+
     await Activity.create({
       actor: req.user,
       action: `đã xóa thiết bị`,
@@ -45,6 +54,7 @@ export async function getListEquipments(req, res) {
     xuatXu,
     departmentIds,
     phanLoaiNhap,
+    biddingIds,
   } = req.query;
 
   const offset = (page - 1) * limit;
@@ -72,6 +82,16 @@ export async function getListEquipments(req, res) {
         condition.DepartmentId = { [Op.in]: departmentIdArray };
       }
     }
+    if (biddingIds) {
+      if (biddingIds.includes('none')) {
+        condition.BiddingId = { [Op.is]: null };
+      } else {
+        const biddingIdArray = biddingIds
+          .split(',')
+          .map((id) => parseInt(id.trim()));
+        condition.BiddingId = { [Op.in]: biddingIdArray };
+      }
+    }
     createCondition('donVi', donVi);
     createCondition('xuatXu', xuatXu);
     createCondition('phanLoaiNhap', phanLoaiNhap);
@@ -93,7 +113,7 @@ export async function getListEquipments(req, res) {
     const { rows, count } = await Equipment.findAndCountAll({
       where: condition,
       order: [[sortKey, direction]],
-      include: { model: Department },
+      include: [{ model: Department }, { model: Bidding }],
       limit: parseInt(limit),
       offset: parseInt(offset),
     });
@@ -139,7 +159,7 @@ export async function getOneEquipment(req, res) {
       where: {
         id: id,
       },
-      include: { model: Department },
+      include: [{ model: Department }, { model: Bidding }],
     });
     if (!equipment) {
       return res.send({ success: false, message: 'Không tìm thấy thiết bị!' });
@@ -205,6 +225,16 @@ export async function updateEquipment(req, res) {
 export async function createEquipment(req, res) {
   try {
     const data = req.body;
+    const equipmentInDb = await Equipment.findOne({
+      where: { kyMaHieu: data.kyMaHieu },
+    });
+    if (equipmentInDb) {
+      return res.send({
+        success: false,
+        message: 'Trùng ký mã hiệu với thiết bị trong hệ thống!',
+      });
+    }
+
     const createdEquipment = await Equipment.create({ ...data });
     await Activity.create({
       actor: req.user,
