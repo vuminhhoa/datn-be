@@ -145,6 +145,7 @@ export async function getOneEquipment(req, res) {
         where: {
           kyMaHieu: id,
         },
+        include: [{ model: Department }, { model: Bidding }],
       });
       if (!equipment) {
         return res.send({

@@ -1,4 +1,4 @@
-import { Bidding, Activity } from '../models/index.js';
+import { Bidding, Activity, Equipment } from '../models/index.js';
 import cloudinary from '../services/cloudinaryService.js';
 import { getCloudinaryFileIdFromUrl } from '../helpers/cloudinaryHelper.js';
 
@@ -216,9 +216,36 @@ export async function getListBiddings(req, res) {
         'createdAt',
         'updatedAt',
       ],
-      raw: true,
+      include: [
+        {
+          model: Equipment,
+          attributes: ['soLuong', 'donGia'],
+        },
+      ],
     });
-    return res.send({ data: prepareDate(biddings), success: true });
+
+    const plainBiddings = biddings.map((bidding) =>
+      bidding.get({ plain: true })
+    );
+
+    const biddingsWithTotals = plainBiddings.map((bidding) => {
+      const totalEquipments = bidding.Equipment.reduce(
+        (sum, equipment) => sum + equipment.soLuong,
+        0
+      );
+      const totalPrice = bidding.Equipment.reduce(
+        (sum, equipment) => sum + equipment.soLuong * equipment.donGia,
+        0
+      );
+
+      return {
+        ...bidding,
+        totalEquipments,
+        totalPrice,
+      };
+    });
+
+    return res.send({ data: biddingsWithTotals, success: true });
   } catch (error) {
     console.log(error);
     return res.send({
@@ -231,22 +258,33 @@ export async function getListBiddings(req, res) {
 
 function prepareDate(objOrArray) {
   const fields = ['createdAt', 'updatedAt'];
-  if (Array.isArray(objOrArray)) {
-    return objOrArray.map((obj) => {
-      for (const field of fields) {
-        if (field in obj) {
-          obj[field] = new Date(obj[field]).toLocaleString();
-        }
-      }
+  const seen = new WeakSet();
+
+  function processObject(obj) {
+    if (seen.has(obj)) {
       return obj;
-    });
-  } else {
+    }
+    seen.add(obj);
+
     for (const field of fields) {
-      if (field in objOrArray) {
-        objOrArray[field] = new Date(objOrArray[field]).toLocaleString();
+      if (field in obj) {
+        obj[field] = new Date(obj[field]).toLocaleString();
       }
     }
-    return objOrArray;
+
+    for (const key in obj) {
+      if (typeof obj[key] === 'object' && obj[key] !== null) {
+        processObject(obj[key]);
+      }
+    }
+
+    return obj;
+  }
+
+  if (Array.isArray(objOrArray)) {
+    return objOrArray.map((obj) => processObject(obj));
+  } else {
+    return processObject(objOrArray);
   }
 }
 
