@@ -141,8 +141,10 @@ export async function deleteRole(req, res) {
         },
       });
     }
+
+    const staffRole = await Role.findOne({ where: { name: 'Nhân viên' } });
     for (const user of roleInDb.Users) {
-      await user.update({ RoleId: 7 });
+      await user.update({ RoleId: staffRole.id });
     }
     await Activity.create({
       actor: req.user,

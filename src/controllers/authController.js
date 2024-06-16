@@ -2,7 +2,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User, Permission, Role, Activity } from '../models/index.js';
-import { USER } from '../const/role.js';
+import { STAFF } from '../const/role.js';
 
 const salt = bcrypt.genSaltSync(10);
 
@@ -19,7 +19,7 @@ export async function register(req, res) {
       });
     let hashPassword = bcrypt.hashSync(password, salt);
     const userRole = await Role.findOne({
-      where: { name: USER },
+      where: { name: STAFF },
       attributes: ['id'],
     });
     const createdUser = await User.create({
