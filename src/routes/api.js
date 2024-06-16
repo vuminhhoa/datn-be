@@ -5,6 +5,7 @@ import {
   getListUsers,
   deleteUser,
   updateUser,
+  updateProfile,
 } from '../controllers/userController.js';
 import {
   getOneEquipment,
@@ -101,6 +102,7 @@ api.delete('/bidding/:id', auth, permission(BIDDING_DELETE), deleteBidding);
 
 api.get('/user/:id', auth, permission(USER_READ), getOneUser);
 api.put('/user', auth, permission(USER_UPDATE), updateUser);
+api.put('/profile', auth, updateProfile);
 api.delete('/user/:id', auth, permission(USER_DELETE), deleteUser);
 api.get('/users', auth, permission(USER_READ), getListUsers);
 

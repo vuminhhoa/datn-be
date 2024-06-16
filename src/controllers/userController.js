@@ -150,3 +150,49 @@ export async function updateUser(req, res) {
     });
   }
 }
+
+export async function updateProfile(req, res) {
+  try {
+    const data = req.body;
+    const userInDb = await User.findOne({
+      where: {
+        id: data.id,
+      },
+    });
+    if (!userInDb) {
+      return res.send({
+        success: false,
+        message: 'Người dùng không tồn tại trên hệ thống!',
+      });
+    }
+    if (userInDb.image !== data.image) {
+      if (userInDb.image !== null) {
+        const oldImageId = getCloudinaryFileIdFromUrl({
+          url: userInDb.image,
+          useExt: true,
+        });
+        await cloudinary.uploader.destroy(oldImageId);
+      }
+      const result = await cloudinary.uploader.upload(data.image, {
+        folder: 'user_images',
+      });
+
+      data.image = result?.secure_url;
+    }
+
+    await User.update(data, {
+      where: {
+        id: data.id,
+      },
+    });
+
+    return res.send({ success: true });
+  } catch (error) {
+    console.log(error);
+    return res.send({
+      success: false,
+      message: 'Cập nhật người dùng thất bại',
+      error: error,
+    });
+  }
+}
