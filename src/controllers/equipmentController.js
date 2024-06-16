@@ -236,6 +236,14 @@ export async function createEquipment(req, res) {
       });
     }
 
+    if (data.hinhAnh) {
+      const result = await cloudinary.uploader.upload(data.hinhAnh, {
+        folder: 'equipment_images',
+      });
+
+      data.hinhAnh = result?.secure_url;
+    }
+
     const createdEquipment = await Equipment.create({ ...data });
     await Activity.create({
       actor: req.user,
