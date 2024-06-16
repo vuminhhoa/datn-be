@@ -274,6 +274,7 @@ export async function createEquipments(req, res) {
         data: duplicates,
         success: false,
         error: 'trungThietBi',
+        message: 'Có thiết bị trùng ký mã hiệu trong hệ thống',
       });
     }
     const departments = await Department.findAll();

@@ -1,4 +1,10 @@
-import { Equipment, Activity, Bidding, User } from '../models/index.js';
+import {
+  Equipment,
+  Activity,
+  Bidding,
+  User,
+  Department,
+} from '../models/index.js';
 import { formatDistanceToNow } from 'date-fns';
 import viLocale from 'date-fns/locale/vi';
 
@@ -11,9 +17,10 @@ const timeAgo = (date) => {
 
 export async function getDashboard(req, res) {
   try {
-    const equipments = await Equipment.findAll();
-    const biddings = await Bidding.findAll();
-    const users = await User.findAll();
+    const countEquipments = await Equipment.count();
+    const countBiddings = await Bidding.count();
+    const countUsers = await User.count();
+    const countDepartments = await Department.count();
     const activities = await Activity.findAll({
       order: [['createdAt', 'DESC']],
       limit: 11,
@@ -21,10 +28,10 @@ export async function getDashboard(req, res) {
     });
 
     const data = {
-      countEquipments: equipments.length,
-      countUsers: users.length,
-      countBiddings: biddings.length,
-      countNonBiddings: 0,
+      countDepartments,
+      countEquipments,
+      countUsers,
+      countBiddings,
       activities: activities.map((activity) => ({
         ...activity,
         createdAt: timeAgo(activity.createdAt),
