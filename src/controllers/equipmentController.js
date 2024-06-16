@@ -69,19 +69,25 @@ export async function getListEquipments(req, res) {
         const departmentIdArray = departmentIds
           .split(',')
           .map((id) => parseInt(id.trim()));
-        condition.DepartmentId = departmentIdArray;
+        condition.DepartmentId = { [Op.in]: departmentIdArray };
       }
     }
     createCondition('donVi', donVi);
     createCondition('xuatXu', xuatXu);
     createCondition('phanLoaiNhap', phanLoaiNhap);
+
     if (search) {
-      condition[Op.or] = [
-        { donVi: { [Op.like]: `%${search}%` } },
-        { xuatXu: { [Op.like]: `%${search}%` } },
-        { phanLoaiNhap: { [Op.like]: `%${search}%` } },
-        { tenThietBi: { [Op.like]: `%${search}%` } },
-      ];
+      const searchCondition = {
+        [Op.or]: [
+          { donVi: { [Op.like]: `%${search}%` } },
+          { xuatXu: { [Op.like]: `%${search}%` } },
+          { hangSanXuat: { [Op.like]: `%${search}%` } },
+          { kyMaHieu: { [Op.like]: `%${search}%` } },
+          { phanLoaiNhap: { [Op.like]: `%${search}%` } },
+          { tenThietBi: { [Op.like]: `%${search}%` } },
+        ],
+      };
+      condition = { ...condition, ...searchCondition };
     }
 
     const { rows, count } = await Equipment.findAndCountAll({

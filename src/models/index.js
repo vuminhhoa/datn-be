@@ -11,8 +11,13 @@ User.belongsTo(Role);
 User.belongsTo(Department);
 
 Equipment.belongsTo(Department);
+Equipment.belongsTo(Bidding);
 
 Bidding.belongsTo(Department);
+Bidding.hasMany(Equipment);
+
+Bidding.belongsTo(User, { as: 'Creator', foreignKey: 'CreatorId' });
+User.hasMany(Bidding, { foreignKey: 'CreatorId' });
 
 Department.hasMany(User);
 Department.hasMany(Equipment);
