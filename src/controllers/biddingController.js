@@ -1,6 +1,14 @@
 import { Bidding, Activity, Equipment, Department } from '../models/index.js';
 import cloudinary from '../services/cloudinaryService.js';
 import { getCloudinaryFileIdFromUrl } from '../helpers/cloudinaryHelper.js';
+import {
+  defaultEHsdt,
+  defaultEHsmt,
+  defaultKeHoachLuaChonNhaThau,
+  defaultKyKetThucHienHopDong,
+  defaultThanhLapToChuyenGiaToThamDinh,
+  defaultYeuCauChaoGia,
+} from '../const/biddingConst.js';
 
 export async function createBidding(req, res) {
   try {
@@ -72,70 +80,123 @@ export async function approveBidding(req, res) {
 export async function updateBidding(req, res) {
   try {
     const data = req.body;
-    const filteredData = filterFields(data, [
+    let filteredData = filterFields(data, [
       'updatedAt',
       'createdAt',
       'deletedFields',
+      'createdFields',
+      'updatedFields',
     ]);
     const biddingInDb = await Bidding.findOne({
       where: {
         id: data.id,
       },
-      raw: true,
     });
+
     if (!biddingInDb) {
       return res.send({
         success: false,
         message: 'Hoạt động không tồn tại trên hệ thống!',
       });
     }
-    const documentFieldsObj = removeNullFields(pickTaiLieuFields(filteredData));
-    const documentsArrayData = Object.entries(documentFieldsObj).map(
-      ([key, value]) => ({
-        key,
-        value,
-      })
-    );
 
-    if (data.deletedFields.length !== 0) {
+    const plainBidding = biddingInDb.get({ plain: true });
+    const preparedBidding = {
+      ...plainBidding,
+      yeuCauChaoGia: {
+        ...defaultYeuCauChaoGia,
+        ...plainBidding.yeuCauChaoGia,
+      },
+      keHoachLuaChonNhaThau: {
+        ...defaultKeHoachLuaChonNhaThau,
+        ...plainBidding.keHoachLuaChonNhaThau,
+      },
+      thanhLapToChuyenGiaToThamDinh: {
+        ...defaultThanhLapToChuyenGiaToThamDinh,
+        ...plainBidding.thanhLapToChuyenGiaToThamDinh,
+      },
+      kyKetThucHienHopDong: {
+        ...defaultKyKetThucHienHopDong,
+        ...plainBidding.kyKetThucHienHopDong,
+      },
+      eHsmt: { ...defaultEHsmt, ...plainBidding.eHsmt },
+      eHsdt: { ...defaultEHsdt, ...plainBidding.eHsdt },
+    };
+
+    if (data.deletedFields.length > 0) {
       for (const field of data.deletedFields) {
+        const splitField = field.split('.');
+        const obj = splitField[0];
+        const key = splitField[1];
+        const objDbValue = preparedBidding[obj];
+        const objValue = filteredData[obj];
+
         const oldFileId = decodeURIComponent(
           getCloudinaryFileIdFromUrl({
-            url: biddingInDb[field],
+            url: objDbValue[key],
             useExt: true,
           })
         );
+
         await cloudinary.uploader.destroy(oldFileId, {
           resource_type: 'raw',
         });
+        filteredData[obj] = {
+          ...objValue,
+          [key]: null,
+        };
       }
     }
 
-    for (const document of documentsArrayData) {
-      if (document.value === biddingInDb[document.key]) {
-        continue;
-      }
-      if (biddingInDb[document.key]) {
+    if (data.updatedFields.length > 0) {
+      for (const field of data.updatedFields) {
+        const splitField = field.split('.');
+        const obj = splitField[0];
+        const key = splitField[1];
+        const objValue = filteredData[obj];
+
         const oldFileId = decodeURIComponent(
           getCloudinaryFileIdFromUrl({
-            url: biddingInDb[document.key],
+            url: objValue[key],
             useExt: true,
           })
         );
         await cloudinary.uploader.destroy(oldFileId, {
           resource_type: 'raw',
         });
+
+        const { fileBase64, fileName } = JSON.parse(objValue[key]);
+        const result = await cloudinary.uploader.upload(fileBase64, {
+          folder: 'bidding_documents',
+          resource_type: 'raw',
+          use_filename: true,
+          filename_override: fileName,
+        });
+        filteredData[obj] = {
+          ...objValue,
+          [key]: result?.secure_url,
+        };
       }
+    }
+    if (data.createdFields.length > 0) {
+      for (const field of data.createdFields) {
+        const splitField = field.split('.');
+        const obj = splitField[0];
+        const key = splitField[1];
+        const objValue = filteredData[obj];
 
-      const { fileBase64, fileName } = JSON.parse(document.value);
-
-      const result = await cloudinary.uploader.upload(fileBase64, {
-        folder: 'bidding_documents',
-        resource_type: 'raw',
-        use_filename: true,
-        filename_override: fileName,
-      });
-      filteredData[document.key] = result?.secure_url;
+        const { fileBase64, fileName } = JSON.parse(objValue[key]);
+        const result = await cloudinary.uploader.upload(fileBase64, {
+          folder: 'bidding_documents',
+          resource_type: 'raw',
+          use_filename: true,
+          filename_override: fileName,
+        });
+        filteredData[obj] = {
+          ...objValue,
+          [key]: result?.secure_url,
+        };
+      }
     }
 
     await Bidding.update(filteredData, {
@@ -243,8 +304,29 @@ export async function getOneBidding(req, res) {
         message: 'Hoạt động không tồn tại trên hệ thống!',
       });
     }
+    const plainBidding = bidding.get({ plain: true });
     return res.send({
-      data: bidding,
+      data: {
+        ...plainBidding,
+        yeuCauChaoGia: {
+          ...defaultYeuCauChaoGia,
+          ...plainBidding.yeuCauChaoGia,
+        },
+        keHoachLuaChonNhaThau: {
+          ...defaultKeHoachLuaChonNhaThau,
+          ...plainBidding.keHoachLuaChonNhaThau,
+        },
+        thanhLapToChuyenGiaToThamDinh: {
+          ...defaultThanhLapToChuyenGiaToThamDinh,
+          ...plainBidding.thanhLapToChuyenGiaToThamDinh,
+        },
+        kyKetThucHienHopDong: {
+          ...defaultKyKetThucHienHopDong,
+          ...plainBidding.kyKetThucHienHopDong,
+        },
+        eHsmt: { ...defaultEHsmt, ...plainBidding.eHsmt },
+        eHsdt: { ...defaultEHsdt, ...plainBidding.eHsdt },
+      },
       success: true,
     });
   } catch (error) {
