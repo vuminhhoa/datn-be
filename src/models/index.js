@@ -8,27 +8,28 @@ import Activity from './activityModel.js';
 import Department from './departmentModel.js';
 
 User.belongsTo(Role);
-User.belongsTo(Department);
-User.hasMany(Bidding, { foreignKey: 'CreatorId' });
-
-Equipment.belongsTo(Department);
-Equipment.belongsTo(Bidding);
-
-Bidding.belongsTo(Department);
-Bidding.hasMany(Equipment);
-Bidding.belongsTo(User, { as: 'Creator', foreignKey: 'CreatorId' });
-
-Department.hasMany(User);
-Department.hasMany(Equipment);
-Department.hasMany(Bidding);
-
-Role.belongsToMany(Permission, { through: 'Role_Permissions' });
 Role.hasMany(User);
 
-Permission.belongsToMany(Role, { through: 'Role_Permissions' });
+User.belongsTo(Department);
+Department.hasMany(User);
 
-Role_Permissions.belongsTo(Role);
+User.hasMany(Bidding, { foreignKey: 'CreatorId' });
+Bidding.belongsTo(User, { as: 'Creator', foreignKey: 'CreatorId' });
+
+Equipment.belongsTo(Department);
+Department.hasMany(Equipment);
+
+Bidding.hasMany(Equipment);
+Equipment.belongsTo(Bidding);
+
+Department.hasMany(Bidding);
+Bidding.belongsTo(Department);
+
+Role.belongsToMany(Permission, { through: 'Role_Permissions' });
 Role_Permissions.belongsTo(Permission);
+
+Permission.belongsToMany(Role, { through: 'Role_Permissions' });
+Role_Permissions.belongsTo(Role);
 
 export {
   Role,

@@ -234,11 +234,7 @@ export async function getOneBidding(req, res) {
       where: {
         id: id,
       },
-      raw: true,
-    });
-
-    const department = await Department.findOne({
-      where: { id: bidding.DepartmentId },
+      include: Department,
     });
 
     if (!bidding) {
@@ -248,7 +244,7 @@ export async function getOneBidding(req, res) {
       });
     }
     return res.send({
-      data: prepareDate({ ...bidding, Department: department }),
+      data: bidding,
       success: true,
     });
   } catch (error) {
@@ -267,7 +263,6 @@ export async function getListBiddings(req, res) {
       attributes: [
         'id',
         'tenDeXuat',
-        'khoaPhongDeXuat',
         'trangThaiDeXuat',
         'createdAt',
         'updatedAt',
@@ -277,29 +272,25 @@ export async function getListBiddings(req, res) {
           model: Equipment,
           attributes: ['soLuong', 'donGia'],
         },
-        // {
-        //   model: Department,
-        //   attributes: ['id', 'tenKhoaPhong'],
-        // },
+        {
+          model: Department,
+          attributes: ['id', 'tenKhoaPhong'],
+        },
       ],
     });
-
-    const plainBiddings = biddings.map((bidding) =>
-      bidding.get({ plain: true })
-    );
-
-    const biddingsWithTotals = plainBiddings.map((bidding) => {
-      const totalEquipments = bidding.Equipment.reduce(
+    const biddingsWithTotals = biddings.map((bidding) => {
+      const plainBidding = bidding.get({ plain: true });
+      const totalEquipments = plainBidding.Equipment.reduce(
         (sum, equipment) => sum + equipment.soLuong,
         0
       );
-      const totalPrice = bidding.Equipment.reduce(
+      const totalPrice = plainBidding.Equipment.reduce(
         (sum, equipment) => sum + equipment.soLuong * equipment.donGia,
         0
       );
 
       return {
-        ...bidding,
+        ...plainBidding,
         totalEquipments,
         totalPrice,
       };
@@ -313,38 +304,6 @@ export async function getListBiddings(req, res) {
       message: 'Lấy dữ liệu hoạt động thất bại',
       error: error,
     });
-  }
-}
-
-function prepareDate(objOrArray) {
-  const fields = ['createdAt', 'updatedAt'];
-  const seen = new WeakSet();
-
-  function processObject(obj) {
-    if (seen.has(obj)) {
-      return obj;
-    }
-    seen.add(obj);
-
-    for (const field of fields) {
-      if (field in obj) {
-        obj[field] = new Date(obj[field]).toLocaleString();
-      }
-    }
-
-    for (const key in obj) {
-      if (typeof obj[key] === 'object' && obj[key] !== null) {
-        processObject(obj[key]);
-      }
-    }
-
-    return obj;
-  }
-
-  if (Array.isArray(objOrArray)) {
-    return objOrArray.map((obj) => processObject(obj));
-  } else {
-    return processObject(objOrArray);
   }
 }
 
