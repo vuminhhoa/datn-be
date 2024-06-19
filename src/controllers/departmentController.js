@@ -188,14 +188,22 @@ export async function createDepartment(req, res) {
 
 export async function getDepartments(req, res) {
   try {
-    const departments = await Department.findAll();
+    const departments = await Department.findAll({ raw: true });
     return res.send({ data: departments, success: true });
   } catch (error) {
-    console.log(error);
+    console.error('Error fetching departments:', error);
+
+    // Check if error.message includes 'includes' to narrow down the problem
+    if (error.message && error.message.includes('includes')) {
+      console.error(
+        "Possible cause: Attempt to call 'includes' on an undefined value."
+      );
+    }
+
     return res.send({
       success: false,
-      message: 'Lấy dữ liệu phòng ban thất bại',
-      error: error,
+      message: 'Lấy dữ liệu tất cả phòng ban thất bại',
+      error: error.message || error, // Send only the message or the full error object
     });
   }
 }

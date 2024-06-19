@@ -6,15 +6,19 @@ const Department = sequelize.define(
   {
     tenKhoaPhong: {
       type: DataTypes.STRING,
+      allowNull: true,
     },
     diaChi: {
       type: DataTypes.STRING,
+      allowNull: true,
     },
     soDienThoai: {
       type: DataTypes.STRING,
+      allowNull: true,
     },
     hinhAnh: {
       type: DataTypes.STRING,
+      allowNull: true,
     },
   },
   {}

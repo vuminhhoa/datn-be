@@ -1,4 +1,4 @@
-import { Bidding, Activity, Equipment } from '../models/index.js';
+import { Bidding, Activity, Equipment, Department } from '../models/index.js';
 import cloudinary from '../services/cloudinaryService.js';
 import { getCloudinaryFileIdFromUrl } from '../helpers/cloudinaryHelper.js';
 
@@ -18,6 +18,54 @@ export async function createBidding(req, res) {
     return res.send({ data: createdBidding, success: true });
   } catch (error) {
     console.log(error);
+  }
+}
+
+export async function approveBidding(req, res) {
+  try {
+    const { id } = req.params;
+    const data = req.body;
+    const biddingInDb = await Bidding.findOne({
+      where: {
+        id: id,
+      },
+      raw: false,
+    });
+    if (!biddingInDb) {
+      return res.send({
+        success: false,
+        message: 'Hoạt động không tồn tại trên hệ thống!',
+      });
+    }
+
+    await Bidding.update(
+      {
+        trangThaiDeXuat: data.trangThaiDeXuat,
+        ngayPheDuyetDeXuat: new Date().toISOString(),
+      },
+      {
+        where: {
+          id: id,
+        },
+      }
+    );
+    await Activity.create({
+      actor: req.user,
+      action: `đã phê duyệt hoạt động mua sắm đấu thầu`,
+      target: {
+        id: id,
+        name: biddingInDb.tenDeXuat,
+        type: 'bidding',
+      },
+    });
+    return res.send({ success: true });
+  } catch (error) {
+    console.log(error);
+    return res.send({
+      success: false,
+      message: 'Cập nhật hoạt động thất bại',
+      error: error,
+    });
   }
 }
 
@@ -188,13 +236,21 @@ export async function getOneBidding(req, res) {
       },
       raw: true,
     });
+
+    const department = await Department.findOne({
+      where: { id: bidding.DepartmentId },
+    });
+
     if (!bidding) {
       return res.send({
         success: false,
         message: 'Hoạt động không tồn tại trên hệ thống!',
       });
     }
-    return res.send({ data: prepareDate(bidding), success: true });
+    return res.send({
+      data: prepareDate({ ...bidding, Department: department }),
+      success: true,
+    });
   } catch (error) {
     console.log(error);
     return res.send({
@@ -221,6 +277,10 @@ export async function getListBiddings(req, res) {
           model: Equipment,
           attributes: ['soLuong', 'donGia'],
         },
+        // {
+        //   model: Department,
+        //   attributes: ['id', 'tenKhoaPhong'],
+        // },
       ],
     });
 
