@@ -232,7 +232,6 @@ export async function deleteBidding(req, res) {
       where: {
         id: id,
       },
-      raw: true,
     });
 
     if (!biddingInDb) {
@@ -241,20 +240,15 @@ export async function deleteBidding(req, res) {
         message: 'Hoạt động không tồn tại trên hệ thống!',
       });
     }
+    const preparedBidding = biddingInDb.get({ plain: true });
+    const documentFields = pickTaiLieuFields(preparedBidding);
 
-    const documentFieldsObj = removeNullFields(pickTaiLieuFields(biddingInDb));
-    const documentsArrayData = Object.entries(documentFieldsObj).map(
-      ([key, value]) => ({
-        key,
-        value,
-      })
-    );
-
-    if (documentsArrayData.length !== 0) {
-      for (const document of documentsArrayData) {
+    if (documentFields.length > 0) {
+      for (const document of documentFields) {
+        const objValue = biddingInDb[document.obj];
         const oldFileId = decodeURIComponent(
           getCloudinaryFileIdFromUrl({
-            url: biddingInDb[document.key],
+            url: objValue[document.field],
             useExt: true,
           })
         );
@@ -263,6 +257,7 @@ export async function deleteBidding(req, res) {
         });
       }
     }
+
     await Activity.create({
       actor: req.user,
       action: `đã xóa hoạt động mua sắm đấu thầu`,
@@ -396,25 +391,21 @@ function filterFields(obj, fieldsToRemove) {
   );
 }
 
-function pickTaiLieuFields(object) {
-  const taiLieuFields = {};
-  for (const key in object) {
-    if (
-      Object.prototype.hasOwnProperty.call(object, key) &&
-      key.startsWith('taiLieu')
-    ) {
-      taiLieuFields[key] = object[key];
+function pickTaiLieuFields(obj) {
+  const taiLieuFields = [];
+  Object.keys(obj).forEach((objKey) => {
+    const objValue = obj[objKey];
+    if (typeof objValue === 'object' && objValue !== null) {
+      Object.keys(objValue).forEach((fieldKey) => {
+        if (fieldKey.startsWith('taiLieu') && objValue[fieldKey] !== null) {
+          taiLieuFields.push({
+            obj: objKey,
+            field: fieldKey,
+            value: objValue[fieldKey],
+          });
+        }
+      });
     }
-  }
+  });
   return taiLieuFields;
-}
-
-function removeNullFields(object) {
-  const result = {};
-  for (const key in object) {
-    if (object[key] !== null) {
-      result[key] = object[key];
-    }
-  }
-  return result;
 }
