@@ -154,10 +154,11 @@ export async function updateBidding(req, res) {
         const obj = splitField[0];
         const key = splitField[1];
         const objValue = filteredData[obj];
+        const objDbValue = preparedBidding[obj];
 
         const oldFileId = decodeURIComponent(
           getCloudinaryFileIdFromUrl({
-            url: objValue[key],
+            url: objDbValue[key],
             useExt: true,
           })
         );
