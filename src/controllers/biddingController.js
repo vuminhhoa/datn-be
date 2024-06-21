@@ -1,6 +1,14 @@
-import { Bidding, Activity, Equipment } from '../models/index.js';
+import { Bidding, Activity, Equipment, Department } from '../models/index.js';
 import cloudinary from '../services/cloudinaryService.js';
 import { getCloudinaryFileIdFromUrl } from '../helpers/cloudinaryHelper.js';
+import {
+  defaultEHsdt,
+  defaultEHsmt,
+  defaultKeHoachLuaChonNhaThau,
+  defaultKyKetThucHienHopDong,
+  defaultThanhLapToChuyenGiaToThamDinh,
+  defaultYeuCauChaoGia,
+} from '../const/biddingConst.js';
 
 export async function createBidding(req, res) {
   try {
@@ -21,19 +29,15 @@ export async function createBidding(req, res) {
   }
 }
 
-export async function updateBidding(req, res) {
+export async function approveBidding(req, res) {
   try {
+    const { id } = req.params;
     const data = req.body;
-    const filteredData = filterFields(data, [
-      'updatedAt',
-      'createdAt',
-      'deletedFields',
-    ]);
     const biddingInDb = await Bidding.findOne({
       where: {
-        id: data.id,
+        id: id,
       },
-      raw: true,
+      raw: false,
     });
     if (!biddingInDb) {
       return res.send({
@@ -41,53 +45,159 @@ export async function updateBidding(req, res) {
         message: 'Hoạt động không tồn tại trên hệ thống!',
       });
     }
-    const documentFieldsObj = removeNullFields(pickTaiLieuFields(filteredData));
-    const documentsArrayData = Object.entries(documentFieldsObj).map(
-      ([key, value]) => ({
-        key,
-        value,
-      })
-    );
 
-    if (data.deletedFields.length !== 0) {
+    await Bidding.update(
+      {
+        trangThaiDeXuat: data.trangThaiDeXuat,
+        ngayPheDuyetDeXuat: new Date().toISOString(),
+      },
+      {
+        where: {
+          id: id,
+        },
+      }
+    );
+    await Activity.create({
+      actor: req.user,
+      action: `đã phê duyệt hoạt động mua sắm đấu thầu`,
+      target: {
+        id: id,
+        name: biddingInDb.tenDeXuat,
+        type: 'bidding',
+      },
+    });
+    return res.send({ success: true });
+  } catch (error) {
+    console.log(error);
+    return res.send({
+      success: false,
+      message: 'Cập nhật hoạt động thất bại',
+      error: error,
+    });
+  }
+}
+
+export async function updateBidding(req, res) {
+  try {
+    const data = req.body;
+    let filteredData = filterFields(data, [
+      'updatedAt',
+      'createdAt',
+      'deletedFields',
+      'createdFields',
+      'updatedFields',
+    ]);
+    const biddingInDb = await Bidding.findOne({
+      where: {
+        id: data.id,
+      },
+    });
+
+    if (!biddingInDb) {
+      return res.send({
+        success: false,
+        message: 'Hoạt động không tồn tại trên hệ thống!',
+      });
+    }
+
+    const plainBidding = biddingInDb.get({ plain: true });
+    const preparedBidding = {
+      ...plainBidding,
+      yeuCauChaoGia: {
+        ...defaultYeuCauChaoGia,
+        ...plainBidding.yeuCauChaoGia,
+      },
+      keHoachLuaChonNhaThau: {
+        ...defaultKeHoachLuaChonNhaThau,
+        ...plainBidding.keHoachLuaChonNhaThau,
+      },
+      thanhLapToChuyenGiaToThamDinh: {
+        ...defaultThanhLapToChuyenGiaToThamDinh,
+        ...plainBidding.thanhLapToChuyenGiaToThamDinh,
+      },
+      kyKetThucHienHopDong: {
+        ...defaultKyKetThucHienHopDong,
+        ...plainBidding.kyKetThucHienHopDong,
+      },
+      eHsmt: { ...defaultEHsmt, ...plainBidding.eHsmt },
+      eHsdt: { ...defaultEHsdt, ...plainBidding.eHsdt },
+    };
+
+    if (data.deletedFields.length > 0) {
       for (const field of data.deletedFields) {
+        const splitField = field.split('.');
+        const obj = splitField[0];
+        const key = splitField[1];
+        const objDbValue = preparedBidding[obj];
+        const objValue = filteredData[obj];
+
         const oldFileId = decodeURIComponent(
           getCloudinaryFileIdFromUrl({
-            url: biddingInDb[field],
+            url: objDbValue[key],
             useExt: true,
           })
         );
+
         await cloudinary.uploader.destroy(oldFileId, {
           resource_type: 'raw',
         });
+        filteredData[obj] = {
+          ...objValue,
+          [key]: null,
+        };
       }
     }
 
-    for (const document of documentsArrayData) {
-      if (document.value === biddingInDb[document.key]) {
-        continue;
-      }
-      if (biddingInDb[document.key]) {
+    if (data.updatedFields.length > 0) {
+      for (const field of data.updatedFields) {
+        const splitField = field.split('.');
+        const obj = splitField[0];
+        const key = splitField[1];
+        const objValue = filteredData[obj];
+        const objDbValue = preparedBidding[obj];
+
         const oldFileId = decodeURIComponent(
           getCloudinaryFileIdFromUrl({
-            url: biddingInDb[document.key],
+            url: objDbValue[key],
             useExt: true,
           })
         );
         await cloudinary.uploader.destroy(oldFileId, {
           resource_type: 'raw',
         });
+
+        const { fileBase64, fileName } = JSON.parse(objValue[key]);
+        const result = await cloudinary.uploader.upload(fileBase64, {
+          folder: 'bidding_documents',
+          resource_type: 'raw',
+          use_filename: true,
+          filename_override: fileName,
+        });
+        filteredData[obj] = {
+          ...objValue,
+          [key]: result?.secure_url,
+        };
       }
+    }
+    if (data.createdFields.length > 0) {
+      for (const field of data.createdFields) {
+        const splitField = field.split('.');
+        const obj = splitField[0];
+        const key = splitField[1];
+        const objValue = filteredData[obj];
 
-      const { fileBase64, fileName } = JSON.parse(document.value);
-
-      const result = await cloudinary.uploader.upload(fileBase64, {
-        folder: 'bidding_documents',
-        resource_type: 'raw',
-        use_filename: true,
-        filename_override: fileName,
-      });
-      filteredData[document.key] = result?.secure_url;
+        const { fileBase64, fileName } = JSON.parse(objValue[key]);
+        const result = await cloudinary.uploader.upload(fileBase64, {
+          folder: 'bidding_documents',
+          resource_type: 'raw',
+          use_filename: true,
+          filename_override: fileName,
+        });
+        filteredData[obj] = {
+          ...objValue,
+          [key]: result?.secure_url,
+        };
+      }
     }
 
     await Bidding.update(filteredData, {
@@ -122,7 +232,6 @@ export async function deleteBidding(req, res) {
       where: {
         id: id,
       },
-      raw: true,
     });
 
     if (!biddingInDb) {
@@ -131,20 +240,15 @@ export async function deleteBidding(req, res) {
         message: 'Hoạt động không tồn tại trên hệ thống!',
       });
     }
+    const preparedBidding = biddingInDb.get({ plain: true });
+    const documentFields = pickTaiLieuFields(preparedBidding);
 
-    const documentFieldsObj = removeNullFields(pickTaiLieuFields(biddingInDb));
-    const documentsArrayData = Object.entries(documentFieldsObj).map(
-      ([key, value]) => ({
-        key,
-        value,
-      })
-    );
-
-    if (documentsArrayData.length !== 0) {
-      for (const document of documentsArrayData) {
+    if (documentFields.length > 0) {
+      for (const document of documentFields) {
+        const objValue = biddingInDb[document.obj];
         const oldFileId = decodeURIComponent(
           getCloudinaryFileIdFromUrl({
-            url: biddingInDb[document.key],
+            url: objValue[document.field],
             useExt: true,
           })
         );
@@ -153,6 +257,7 @@ export async function deleteBidding(req, res) {
         });
       }
     }
+
     await Activity.create({
       actor: req.user,
       action: `đã xóa hoạt động mua sắm đấu thầu`,
@@ -186,15 +291,40 @@ export async function getOneBidding(req, res) {
       where: {
         id: id,
       },
-      raw: true,
+      include: Department,
     });
+
     if (!bidding) {
       return res.send({
         success: false,
         message: 'Hoạt động không tồn tại trên hệ thống!',
       });
     }
-    return res.send({ data: prepareDate(bidding), success: true });
+    const plainBidding = bidding.get({ plain: true });
+    return res.send({
+      data: {
+        ...plainBidding,
+        yeuCauChaoGia: {
+          ...defaultYeuCauChaoGia,
+          ...plainBidding.yeuCauChaoGia,
+        },
+        keHoachLuaChonNhaThau: {
+          ...defaultKeHoachLuaChonNhaThau,
+          ...plainBidding.keHoachLuaChonNhaThau,
+        },
+        thanhLapToChuyenGiaToThamDinh: {
+          ...defaultThanhLapToChuyenGiaToThamDinh,
+          ...plainBidding.thanhLapToChuyenGiaToThamDinh,
+        },
+        kyKetThucHienHopDong: {
+          ...defaultKyKetThucHienHopDong,
+          ...plainBidding.kyKetThucHienHopDong,
+        },
+        eHsmt: { ...defaultEHsmt, ...plainBidding.eHsmt },
+        eHsdt: { ...defaultEHsdt, ...plainBidding.eHsdt },
+      },
+      success: true,
+    });
   } catch (error) {
     console.log(error);
     return res.send({
@@ -211,7 +341,6 @@ export async function getListBiddings(req, res) {
       attributes: [
         'id',
         'tenDeXuat',
-        'khoaPhongDeXuat',
         'trangThaiDeXuat',
         'createdAt',
         'updatedAt',
@@ -221,25 +350,25 @@ export async function getListBiddings(req, res) {
           model: Equipment,
           attributes: ['soLuong', 'donGia'],
         },
+        {
+          model: Department,
+          attributes: ['id', 'tenKhoaPhong'],
+        },
       ],
     });
-
-    const plainBiddings = biddings.map((bidding) =>
-      bidding.get({ plain: true })
-    );
-
-    const biddingsWithTotals = plainBiddings.map((bidding) => {
-      const totalEquipments = bidding.Equipment.reduce(
+    const biddingsWithTotals = biddings.map((bidding) => {
+      const plainBidding = bidding.get({ plain: true });
+      const totalEquipments = plainBidding.Equipment.reduce(
         (sum, equipment) => sum + equipment.soLuong,
         0
       );
-      const totalPrice = bidding.Equipment.reduce(
+      const totalPrice = plainBidding.Equipment.reduce(
         (sum, equipment) => sum + equipment.soLuong * equipment.donGia,
         0
       );
 
       return {
-        ...bidding,
+        ...plainBidding,
         totalEquipments,
         totalPrice,
       };
@@ -256,63 +385,27 @@ export async function getListBiddings(req, res) {
   }
 }
 
-function prepareDate(objOrArray) {
-  const fields = ['createdAt', 'updatedAt'];
-  const seen = new WeakSet();
-
-  function processObject(obj) {
-    if (seen.has(obj)) {
-      return obj;
-    }
-    seen.add(obj);
-
-    for (const field of fields) {
-      if (field in obj) {
-        obj[field] = new Date(obj[field]).toLocaleString();
-      }
-    }
-
-    for (const key in obj) {
-      if (typeof obj[key] === 'object' && obj[key] !== null) {
-        processObject(obj[key]);
-      }
-    }
-
-    return obj;
-  }
-
-  if (Array.isArray(objOrArray)) {
-    return objOrArray.map((obj) => processObject(obj));
-  } else {
-    return processObject(objOrArray);
-  }
-}
-
 function filterFields(obj, fieldsToRemove) {
   return Object.fromEntries(
     Object.entries(obj).filter(([key]) => !fieldsToRemove.includes(key))
   );
 }
 
-function pickTaiLieuFields(object) {
-  const taiLieuFields = {};
-  for (const key in object) {
-    if (
-      Object.prototype.hasOwnProperty.call(object, key) &&
-      key.startsWith('taiLieu')
-    ) {
-      taiLieuFields[key] = object[key];
+function pickTaiLieuFields(obj) {
+  const taiLieuFields = [];
+  Object.keys(obj).forEach((objKey) => {
+    const objValue = obj[objKey];
+    if (typeof objValue === 'object' && objValue !== null) {
+      Object.keys(objValue).forEach((fieldKey) => {
+        if (fieldKey.startsWith('taiLieu') && objValue[fieldKey] !== null) {
+          taiLieuFields.push({
+            obj: objKey,
+            field: fieldKey,
+            value: objValue[fieldKey],
+          });
+        }
+      });
     }
-  }
+  });
   return taiLieuFields;
-}
-
-function removeNullFields(object) {
-  const result = {};
-  for (const key in object) {
-    if (object[key] !== null) {
-      result[key] = object[key];
-    }
-  }
-  return result;
 }

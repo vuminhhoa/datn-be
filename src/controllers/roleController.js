@@ -24,7 +24,7 @@ export async function getRole(req, res) {
     console.log(error);
     return res.send({
       success: false,
-      message: 'Lấy dữ liệu user thất bại',
+      message: 'Lấy dữ liệu vai trò thất bại',
       error: error,
     });
   }

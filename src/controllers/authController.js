@@ -119,7 +119,7 @@ export async function verify(req, res) {
     console.log(error);
     return res.send({
       success: false,
-      message: 'Lấy dữ liệu user thất bại',
+      message: 'Xác thực user thất bại',
       error: error,
     });
   }

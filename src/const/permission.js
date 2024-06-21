@@ -9,6 +9,7 @@ const EQUIPMENT_CREATE = 'Tạo thiết bị';
 const EQUIPMENT_READ = 'Xem chi tiết thiết bị';
 const EQUIPMENT_UPDATE = 'Cập nhật thiết bị';
 const EQUIPMENT_DELETE = 'Xóa thiết bị';
+const EQUIPMENT_READ_ALL = 'Xem tất cả thiết bị';
 
 const DEPARTMENT_CREATE = 'Tạo khoa phòng';
 const DEPARTMENT_READ = 'Xem chi tiết khoa phòng';
@@ -19,6 +20,8 @@ const BIDDING_CREATE = 'Tạo hoạt động mua sắm đấu thầu';
 const BIDDING_READ = 'Xem chi tiết hoạt động mua sắm đấu thầu';
 const BIDDING_UPDATE = 'Cập nhật hoạt động mua sắm đấu thầu';
 const BIDDING_DELETE = 'Xóa hoạt động mua sắm đấu thầu';
+const BIDDING_APPROVE = 'Phê duyệt hoạt động mua sắm đấu thầu';
+const BIDDING_READ_ALL = 'Xem tất cả hoạt động mua sắm đấu thầu';
 
 const ROLE_CREATE = 'Tạo vai trò';
 const ROLE_READ = 'Xem chi tiết vai trò';
@@ -31,8 +34,11 @@ const ALL_PERMISSION = [
   USER_READ,
   USER_UPDATE,
   USER_DELETE,
+  BIDDING_READ_ALL,
+  EQUIPMENT_READ_ALL,
   EQUIPMENT_CREATE,
   EQUIPMENT_READ,
+  BIDDING_APPROVE,
   EQUIPMENT_UPDATE,
   EQUIPMENT_DELETE,
   BIDDING_CREATE,
@@ -52,13 +58,16 @@ const ALL_PERMISSION = [
 const PERMISSION_GROUP = [
   'thành viên',
   'thiết bị',
+  'khoa phòng',
   'hoạt động mua sắm đấu thầu',
   'vai trò',
 ];
 
 export {
   DASHBOARD_READ,
+  BIDDING_READ_ALL,
   USER_CREATE,
+  EQUIPMENT_READ_ALL,
   USER_READ,
   USER_UPDATE,
   USER_DELETE,
@@ -76,6 +85,7 @@ export {
   ROLE_DELETE,
   ALL_PERMISSION,
   PERMISSION_GROUP,
+  BIDDING_APPROVE,
   DEPARTMENT_CREATE,
   DEPARTMENT_READ,
   DEPARTMENT_UPDATE,

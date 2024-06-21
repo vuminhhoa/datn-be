@@ -21,6 +21,7 @@ import {
   createBidding,
   getListBiddings,
   deleteBidding,
+  approveBidding,
 } from '../controllers/biddingController.js';
 import {
   createRole,
@@ -58,6 +59,7 @@ import {
   DEPARTMENT_UPDATE,
   DEPARTMENT_DELETE,
   DEPARTMENT_CREATE,
+  BIDDING_APPROVE,
 } from '../const/permission.js';
 import { getDashboard } from '../controllers/dashboardController.js';
 import { permission } from '../middlewares/permissionMiddleware.js';
@@ -99,6 +101,7 @@ api.get('/biddings', auth, permission(BIDDING_READ), getListBiddings);
 api.get('/bidding/:id', auth, permission(BIDDING_READ), getOneBidding);
 api.put('/bidding/:id', auth, permission(BIDDING_UPDATE), updateBidding);
 api.delete('/bidding/:id', auth, permission(BIDDING_DELETE), deleteBidding);
+api.put('/approveBidding/:id', auth, permission(BIDDING_APPROVE), approveBidding);
 
 api.get('/user/:id', auth, permission(USER_READ), getOneUser);
 api.put('/user', auth, permission(USER_UPDATE), updateUser);

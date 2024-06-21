@@ -14,7 +14,7 @@ module.exports = {
      */
     return queryInterface.bulkInsert('Roles', [
       {
-        name: 'Trưởng phòng Vật tư',
+        name: 'Trưởng phòng Phòng Vật tư',
         createdAt: new Date(),
         updatedAt: new Date(),
       },

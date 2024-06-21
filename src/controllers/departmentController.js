@@ -191,11 +191,10 @@ export async function getDepartments(req, res) {
     const departments = await Department.findAll();
     return res.send({ data: departments, success: true });
   } catch (error) {
-    console.log(error);
     return res.send({
       success: false,
-      message: 'Lấy dữ liệu phòng ban thất bại',
-      error: error,
+      message: 'Lấy dữ liệu tất cả phòng ban thất bại',
+      error: error.message || error,
     });
   }
 }
