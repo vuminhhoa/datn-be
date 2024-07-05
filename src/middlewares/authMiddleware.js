@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { User } from '../models/index.js';
+import { Department, Permission, Role, User } from '../models/index.js';
 
 export const auth = async (req, res, next) => {
   try {
@@ -31,8 +31,15 @@ export const auth = async (req, res, next) => {
                 id: decoded.user.id,
                 RoleId: decoded.user.RoleId,
               },
-              attributes: ['id', 'name', 'email', 'image', 'RoleId'],
-              raw: true,
+              attributes: [
+                'id',
+                'name',
+                'email',
+                'image',
+                'RoleId',
+                'DepartmentId',
+              ],
+              include: { model: Role, include: Permission },
             });
 
             if (!user) {

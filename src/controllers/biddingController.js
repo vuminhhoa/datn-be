@@ -1,4 +1,10 @@
-import { Bidding, Activity, Equipment, Department } from '../models/index.js';
+import {
+  Bidding,
+  Activity,
+  Equipment,
+  Department,
+  User,
+} from '../models/index.js';
 import cloudinary from '../services/cloudinaryService.js';
 import { getCloudinaryFileIdFromUrl } from '../helpers/cloudinaryHelper.js';
 import {
@@ -45,21 +51,41 @@ export async function approveBidding(req, res) {
         message: 'Hoạt động không tồn tại trên hệ thống!',
       });
     }
+    let dataToUpdate = {};
+    switch (data.type) {
+      case 'deXuat':
+        dataToUpdate = {
+          trangThaiDeXuat: data.trangThaiDeXuat,
+          trangThaiHoatDong:
+            data.trangThaiDeXuat === 'approved' ? 'pendingProcess' : 'rejected',
+          ngayTaoHoatDong: new Date().toISOString(),
+          isProposal: data.trangThaiDeXuat === 'approved' ? false : true,
+          ngayPheDuyetDeXuat: new Date().toISOString(),
+          NguoiDuyetDeXuatId: req.user.id,
+        };
+        break;
+      case 'hoatDong':
+        dataToUpdate = {
+          trangThaiHoatDong: data.trangThai,
+          ngayPheDuyetHoatDong: new Date().toISOString(),
+          NguoiDuyetHoatDongId: req.user.id,
+        };
+        break;
+      default:
+        break;
+    }
 
-    await Bidding.update(
-      {
-        trangThaiDeXuat: data.trangThaiDeXuat,
-        ngayPheDuyetDeXuat: new Date().toISOString(),
+    await Bidding.update(dataToUpdate, {
+      where: {
+        id: id,
       },
-      {
-        where: {
-          id: id,
-        },
-      }
-    );
+    });
     await Activity.create({
       actor: req.user,
-      action: `đã phê duyệt hoạt động mua sắm đấu thầu`,
+      action:
+        data.type === 'hoatDong'
+          ? `đã phê duyệt hoạt động mua sắm đấu thầu`
+          : `đã phê duyệt đề xuất mua sắm`,
       target: {
         id: id,
         name: biddingInDb.tenDeXuat,
@@ -291,7 +317,13 @@ export async function getOneBidding(req, res) {
       where: {
         id: id,
       },
-      include: Department,
+      include: [
+        Department,
+        { model: User, as: 'NguoiDuyetHoatDong', attributes: ['name', 'id'] },
+        { model: User, as: 'NguoiDuyetDeXuat', attributes: ['name', 'id'] },
+        { model: User, as: 'NguoiTaoHoatDong', attributes: ['name', 'id'] },
+        { model: User, as: 'NguoiTaoDeXuat', attributes: ['name', 'id'] },
+      ],
     });
 
     if (!bidding) {
@@ -336,15 +368,20 @@ export async function getOneBidding(req, res) {
 }
 
 export async function getListBiddings(req, res) {
+  const { isProposal } = req.query;
   try {
     const biddings = await Bidding.findAll({
       attributes: [
         'id',
         'tenDeXuat',
         'trangThaiDeXuat',
+        'trangThaiHoatDong',
         'createdAt',
         'updatedAt',
       ],
+      where: {
+        isProposal: !!isProposal,
+      },
       include: [
         {
           model: Equipment,

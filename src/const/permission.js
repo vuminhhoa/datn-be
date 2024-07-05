@@ -23,6 +23,13 @@ const BIDDING_DELETE = 'Xóa hoạt động mua sắm đấu thầu';
 const BIDDING_APPROVE = 'Phê duyệt hoạt động mua sắm đấu thầu';
 const BIDDING_READ_ALL = 'Xem tất cả hoạt động mua sắm đấu thầu';
 
+const BIDDING_PROPOSAL_CREATE = 'Tạo đề xuất hoạt động mua sắm';
+const BIDDING_PROPOSAL_READ = 'Xem chi tiết đề xuất hoạt động mua sắm';
+const BIDDING_PROPOSAL_UPDATE = 'Cập nhật đề xuất hoạt động mua sắm';
+const BIDDING_PROPOSAL_DELETE = 'Xóa đề xuất hoạt động mua sắm';
+const BIDDING_PROPOSAL_APPROVE = 'Phê duyệt đề xuất hoạt động mua sắm';
+const BIDDING_PROPOSAL_READ_ALL = 'Xem tất cả đề xuất hoạt động mua sắm';
+
 const ROLE_CREATE = 'Tạo vai trò';
 const ROLE_READ = 'Xem chi tiết vai trò';
 const ROLE_UPDATE = 'Cập nhật vai trò';
@@ -34,17 +41,23 @@ const ALL_PERMISSION = [
   USER_READ,
   USER_UPDATE,
   USER_DELETE,
-  BIDDING_READ_ALL,
   EQUIPMENT_READ_ALL,
   EQUIPMENT_CREATE,
   EQUIPMENT_READ,
-  BIDDING_APPROVE,
   EQUIPMENT_UPDATE,
   EQUIPMENT_DELETE,
+  BIDDING_READ_ALL,
+  BIDDING_APPROVE,
   BIDDING_CREATE,
   BIDDING_READ,
   BIDDING_UPDATE,
   BIDDING_DELETE,
+  BIDDING_PROPOSAL_READ_ALL,
+  BIDDING_PROPOSAL_APPROVE,
+  BIDDING_PROPOSAL_CREATE,
+  BIDDING_PROPOSAL_READ,
+  BIDDING_PROPOSAL_UPDATE,
+  BIDDING_PROPOSAL_DELETE,
   ROLE_CREATE,
   ROLE_READ,
   ROLE_UPDATE,
@@ -60,6 +73,7 @@ const PERMISSION_GROUP = [
   'thiết bị',
   'khoa phòng',
   'hoạt động mua sắm đấu thầu',
+  'đề xuất hoạt động mua sắm',
   'vai trò',
 ];
 
@@ -90,4 +104,10 @@ export {
   DEPARTMENT_READ,
   DEPARTMENT_UPDATE,
   DEPARTMENT_DELETE,
+  BIDDING_PROPOSAL_READ_ALL,
+  BIDDING_PROPOSAL_APPROVE,
+  BIDDING_PROPOSAL_CREATE,
+  BIDDING_PROPOSAL_READ,
+  BIDDING_PROPOSAL_UPDATE,
+  BIDDING_PROPOSAL_DELETE,
 };

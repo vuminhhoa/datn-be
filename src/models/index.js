@@ -13,8 +13,31 @@ Role.hasMany(User);
 User.belongsTo(Department);
 Department.hasMany(User);
 
-User.hasMany(Bidding, { foreignKey: 'CreatorId' });
-Bidding.belongsTo(User, { as: 'Creator', foreignKey: 'CreatorId' });
+User.hasMany(Bidding, { foreignKey: 'NguoiTaoHoatDongId' });
+Bidding.belongsTo(User, {
+  as: 'NguoiTaoHoatDong',
+  foreignKey: 'NguoiTaoHoatDongId',
+});
+User.hasMany(Bidding, { foreignKey: 'NguoiTaoDeXuatId' });
+Bidding.belongsTo(User, {
+  as: 'NguoiTaoDeXuat',
+  foreignKey: 'NguoiTaoDeXuatId',
+});
+Bidding.belongsTo(User, {
+  as: 'NguoiDuyetDeXuat',
+  foreignKey: 'NguoiDuyetDeXuatId',
+});
+Bidding.belongsTo(User, {
+  as: 'NguoiDuyetHoatDong',
+  foreignKey: 'NguoiDuyetHoatDongId',
+});
+
+User.hasMany(Bidding, {
+  foreignKey: 'NguoiDuyetDeXuatId',
+});
+User.hasMany(Bidding, {
+  foreignKey: 'NguoiDuyetHoatDongId',
+});
 
 Equipment.belongsTo(Department);
 Department.hasMany(Equipment);

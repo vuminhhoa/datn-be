@@ -3,6 +3,8 @@ import { Equipment, Activity, Department, Bidding } from '../models/index.js';
 import cloudinary from '../services/cloudinaryService.js';
 import { getCloudinaryFileIdFromUrl } from '../helpers/cloudinaryHelper.js';
 import { Op } from 'sequelize';
+import hasPermission from '../helpers/hasPermission.js';
+import { EQUIPMENT_READ_ALL } from '../const/permission.js';
 
 export async function deleteEquipment(req, res) {
   try {
@@ -58,7 +60,17 @@ export async function getListEquipments(req, res) {
   } = req.query;
 
   const offset = (page - 1) * limit;
-
+  console.log(req.user);
+  if (!req.user.DepartmentId && !hasPermission(EQUIPMENT_READ_ALL, req.user)) {
+    return res.send({
+      success: true,
+      data: [],
+      pageInfo: {
+        total: 0,
+        limit: 10,
+      },
+    });
+  }
   try {
     let condition = {};
 
