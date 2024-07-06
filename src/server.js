@@ -10,7 +10,7 @@ import Activity from './models/activityModel.js';
 const app = express();
 const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
-const io = new SocketIo(server);
+const io = new SocketIo(server, { cors: { origin: '*' } });
 
 // Apply rate limiting
 const limiter = rateLimit({
