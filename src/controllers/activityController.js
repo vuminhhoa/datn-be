@@ -1,13 +1,4 @@
-import { Equipment, Activity, Bidding, User } from '../models/index.js';
-import { formatDistanceToNow } from 'date-fns';
-import viLocale from 'date-fns/locale/vi';
-
-const timeAgo = (date) => {
-  return formatDistanceToNow(new Date(date), {
-    addSuffix: true,
-    locale: viLocale,
-  });
-};
+import { Activity } from '../models/index.js';
 
 export async function getActivities(req, res) {
   try {
@@ -16,12 +7,7 @@ export async function getActivities(req, res) {
       raw: true,
     });
 
-    const preparedData = activities.map((activity) => ({
-      ...activity,
-      createdAt: timeAgo(activity.createdAt),
-    }));
-
-    return res.send({ data: preparedData, success: true });
+    return res.send({ data: activities, success: true });
   } catch (error) {
     console.log(error);
     return res.send({

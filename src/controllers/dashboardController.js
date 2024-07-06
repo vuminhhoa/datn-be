@@ -5,15 +5,6 @@ import {
   User,
   Department,
 } from '../models/index.js';
-import { formatDistanceToNow } from 'date-fns';
-import viLocale from 'date-fns/locale/vi';
-
-const timeAgo = (date) => {
-  return formatDistanceToNow(new Date(date), {
-    addSuffix: true,
-    locale: viLocale,
-  });
-};
 
 export async function getDashboard(req, res) {
   try {
@@ -32,10 +23,7 @@ export async function getDashboard(req, res) {
       countEquipments,
       countUsers,
       countBiddings,
-      activities: activities.map((activity) => ({
-        ...activity,
-        createdAt: timeAgo(activity.createdAt),
-      })),
+      activities,
       hasNext: activities.length === 11,
     };
 

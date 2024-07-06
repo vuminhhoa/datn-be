@@ -3,9 +3,14 @@ import cors from 'cors';
 import { rateLimit } from 'express-rate-limit';
 import { sequelize } from './config/sequelizeConfig.js';
 import api from './routes/api.js';
+import { Server as SocketIo } from 'socket.io';
+import http from 'http';
+import Activity from './models/activityModel.js';
 
 const app = express();
+const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
+const io = new SocketIo(server);
 
 // Apply rate limiting
 const limiter = rateLimit({
@@ -40,7 +45,7 @@ app.use(limiter);
 app.use('/api', api);
 
 // Start the server
-app.listen(PORT, async () => {
+server.listen(PORT, async () => {
   try {
     await sequelize.authenticate();
     await sequelize.sync({ alter: true });
@@ -60,4 +65,18 @@ app.listen(PORT, async () => {
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }
+});
+
+// Socket.io connection
+io.on('connection', (socket) => {
+  console.log('New client connected');
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
+});
+
+Activity.afterCreate((newActivity) => {
+  console.log('New activity created:', newActivity);
+  io.emit('newActivity', newActivity);
 });

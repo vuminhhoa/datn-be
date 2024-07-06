@@ -6,6 +6,8 @@ import Equipment from './equipmentModel.js';
 import Role_Permissions from './rolePermissionModel.js';
 import Activity from './activityModel.js';
 import Department from './departmentModel.js';
+import { Server as SocketIo } from 'socket.io';
+import http from 'http';
 
 User.belongsTo(Role);
 Role.hasMany(User);
