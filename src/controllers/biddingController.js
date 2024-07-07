@@ -38,6 +38,7 @@ export async function createBidding(req, res) {
 export async function approveBidding(req, res) {
   try {
     const { id } = req.params;
+    const { type } = req.query;
     const data = req.body;
     const biddingInDb = await Bidding.findOne({
       where: {
@@ -52,7 +53,7 @@ export async function approveBidding(req, res) {
       });
     }
     let dataToUpdate = {};
-    switch (data.type) {
+    switch (type) {
       case 'deXuat':
         dataToUpdate = {
           trangThaiDeXuat: data.trangThaiDeXuat,
@@ -66,7 +67,7 @@ export async function approveBidding(req, res) {
         break;
       case 'hoatDong':
         dataToUpdate = {
-          trangThaiHoatDong: data.trangThai,
+          trangThaiHoatDong: data.trangThaiHoatDong,
           ngayPheDuyetHoatDong: new Date().toISOString(),
           NguoiDuyetHoatDongId: req.user.id,
         };
@@ -80,10 +81,45 @@ export async function approveBidding(req, res) {
         id: id,
       },
     });
+    if (type === 'hoatDong') {
+      const preparedData = JSON.parse(data.danhSachThietBi);
+      const existingEquipments = await Equipment.findAll({
+        attributes: ['kyMaHieu'],
+      });
+
+      const existingKyMaHieu = existingEquipments.map(
+        (equip) => equip.kyMaHieu
+      );
+
+      const duplicates = preparedData.filter((item) =>
+        existingKyMaHieu.includes(item.kyMaHieu)
+      );
+
+      if (duplicates.length > 0) {
+        return res.send({
+          data: duplicates,
+          success: false,
+          error: 'trungThietBi',
+          message: 'Có thiết bị trùng ký mã hiệu trong hệ thống',
+        });
+      }
+
+      await Equipment.bulkCreate(preparedData);
+      await Activity.create({
+        actor: req.user,
+        action: `đã nhập ${preparedData.length} thiết bị từ hoạt động mua sắm`,
+        target: {
+          id: id,
+          name: biddingInDb.tenDeXuat,
+          type: 'bidding',
+        },
+      });
+      return res.send({ success: true });
+    }
     await Activity.create({
       actor: req.user,
       action:
-        data.type === 'hoatDong'
+        type === 'hoatDong'
           ? `đã phê duyệt hoạt động mua sắm đấu thầu`
           : `đã phê duyệt đề xuất mua sắm`,
       target: {
@@ -104,6 +140,7 @@ export async function approveBidding(req, res) {
 }
 
 export async function updateBidding(req, res) {
+  const { id } = req.params;
   try {
     const data = req.body;
     let filteredData = filterFields(data, [
@@ -115,7 +152,7 @@ export async function updateBidding(req, res) {
     ]);
     const biddingInDb = await Bidding.findOne({
       where: {
-        id: data.id,
+        id: id,
       },
     });
 
@@ -149,7 +186,7 @@ export async function updateBidding(req, res) {
       eHsdt: { ...defaultEHsdt, ...plainBidding.eHsdt },
     };
 
-    if (data.deletedFields.length > 0) {
+    if (data?.deletedFields?.length > 0) {
       for (const field of data.deletedFields) {
         const splitField = field.split('.');
         const obj = splitField[0];
@@ -174,7 +211,7 @@ export async function updateBidding(req, res) {
       }
     }
 
-    if (data.updatedFields.length > 0) {
+    if (data?.updatedFields?.length > 0) {
       for (const field of data.updatedFields) {
         const splitField = field.split('.');
         const obj = splitField[0];
@@ -205,7 +242,7 @@ export async function updateBidding(req, res) {
         };
       }
     }
-    if (data.createdFields.length > 0) {
+    if (data?.createdFields?.length > 0) {
       for (const field of data.createdFields) {
         const splitField = field.split('.');
         const obj = splitField[0];
@@ -228,14 +265,14 @@ export async function updateBidding(req, res) {
 
     await Bidding.update(filteredData, {
       where: {
-        id: filteredData.id,
+        id: id,
       },
     });
     await Activity.create({
       actor: req.user,
       action: `đã cập nhật hoạt động mua sắm đấu thầu`,
       target: {
-        id: filteredData.id,
+        id: id,
         name: filteredData.tenDeXuat,
         type: 'bidding',
       },

@@ -273,7 +273,7 @@ export async function createEquipment(req, res) {
 }
 
 export async function createEquipments(req, res) {
-  let data = req.body;
+  let { data, BiddingId, DepartmentId } = req.body;
 
   if (!Array.isArray(data) || data.length === 0) {
     return res.status(400).json({ error: 'Invalid data array' });
@@ -300,18 +300,42 @@ export async function createEquipments(req, res) {
     }
     const departments = await Department.findAll();
     const preparedData = data.map((item) => {
-      const department = departments.find(
-        (dept) => dept.tenKhoaPhong === item.phanKhoa
-      );
-      if (department) {
-        item.DepartmentId = department.id;
+      if (!!DepartmentId) {
+        const department = departments.find(
+          (dept) => dept.tenKhoaPhong === item.phanKhoa
+        );
+        if (department) {
+          item.DepartmentId = department.id;
+        }
       }
+
       return {
         ...item,
+        BiddingId: !!BiddingId ? BiddingId : null,
+        DepartmentId: !!DepartmentId ? DepartmentId : null,
         phanLoaiNhap: 'Nhập Excel',
       };
     });
 
+    if (!!BiddingId) {
+      const biddingData = await Bidding.findOne({
+        where: { id: BiddingId },
+      });
+      await Bidding.update(
+        { danhSachThietBiXemTruoc: JSON.stringify(preparedData) },
+        { where: { id: BiddingId } }
+      );
+      await Activity.create({
+        actor: req.user,
+        action: `đã nhập danh sách xem trước ${data.length} thiết bị từ file excel cho hoạt động mua sắm`,
+        target: {
+          id: biddingData.id,
+          name: biddingData.tenDeXuat,
+          type: 'bidding',
+        },
+      });
+      return res.send({ success: true });
+    }
     const createdEquipments = await Equipment.bulkCreate(preparedData);
     await Activity.create({
       actor: req.user,

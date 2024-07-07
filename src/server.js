@@ -77,6 +77,5 @@ io.on('connection', (socket) => {
 });
 
 Activity.afterCreate((newActivity) => {
-  console.log('New activity created:', newActivity);
   io.emit('newActivity', newActivity);
 });

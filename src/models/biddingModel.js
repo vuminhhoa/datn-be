@@ -20,6 +20,7 @@ const Bidding = sequelize.define(
     eHsmt: { type: DataTypes.JSON, allowNull: true },
     eHsdt: { type: DataTypes.JSON, allowNull: true },
     kyKetThucHienHopDong: { type: DataTypes.JSON, allowNull: true },
+    danhSachThietBiXemTruoc: { type: DataTypes.TEXT('long'), allowNull: true },
     isProposal: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
