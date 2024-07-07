@@ -327,7 +327,7 @@ export async function createEquipments(req, res) {
       );
       await Activity.create({
         actor: req.user,
-        action: `đã nhập danh sách xem trước ${data.length} thiết bị từ file excel cho hoạt động mua sắm`,
+        action: `đã tạo danh sách xem trước ${data.length} thiết bị từ file excel cho hoạt động mua sắm`,
         target: {
           id: biddingData.id,
           name: biddingData.tenDeXuat,
