@@ -24,6 +24,7 @@ export async function register(req, res) {
     });
     const createdUser = await User.create({
       ...req.body,
+      DepartmentId: req.body.department,
       password: hashPassword,
       RoleId: role ? role : userRole.id,
     });
