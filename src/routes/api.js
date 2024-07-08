@@ -108,7 +108,7 @@ api.put(
   approveBidding
 );
 
-api.get('/user/:id', auth, getOneUser);
+api.get('/user/:id', auth, permission(USER_READ), getOneUser);
 api.put('/user', auth, permission(USER_UPDATE), updateUser);
 api.put('/profile', auth, updateProfile);
 api.delete('/user/:id', auth, permission(USER_DELETE), deleteUser);
