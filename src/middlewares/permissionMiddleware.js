@@ -12,7 +12,7 @@ export const permission = (permission) => {
         include: { model: Permission, attributes: ['name'] },
       });
 
-      let hasPermission = plainPermissions.some(
+      let hasPermission = permissions.some(
         (item) => item.Permission.name === permission
       );
 
