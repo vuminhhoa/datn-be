@@ -8,7 +8,7 @@ import http from 'http';
 import Activity from './models/activityModel.js';
 
 const corsOptions = {
-  // origin: ['http://frontend-domain.com', 'http://another-frontend-domain.com'],
+  origin: '*',
   methods: 'GET, POST, OPTIONS, PUT, PATCH, DELETE',
   allowedHeaders:
     'X-Requested-With, Content-Type, x-access-token, Authorization',
@@ -31,6 +31,7 @@ const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 const io = new SocketIo(server, {
   cors: {
+    origin: '*',
     methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'PATCH', 'DELETE'],
     allowedHeaders: [
       'X-Requested-With',
@@ -54,7 +55,7 @@ io.on('connection', (socket) => {
   });
 });
 
-app.listen(PORT, async () => {
+server.listen(PORT, async () => {
   try {
     await sequelize.authenticate();
     await sequelize.sync({ alter: true });
