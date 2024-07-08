@@ -68,11 +68,25 @@ import { getActivities } from '../controllers/activityController.js';
 const api = express.Router();
 
 api.get('/dashboard', auth, permission(DASHBOARD_READ), getDashboard);
+api.get(
+  '/dashboard/biddings',
+  auth,
+  permission(DASHBOARD_READ),
+  getListBiddings
+);
+api.get('/dashboard/roles', auth, permission(DASHBOARD_READ), getRoles);
+api.get(
+  '/dashboard/departments',
+  auth,
+  permission(DASHBOARD_READ),
+  getDepartments
+);
+
 api.get('/activities', auth, permission(DASHBOARD_READ), getActivities);
 
 api.post('/auth/register', register);
 api.post('/auth/login', login);
-api.post('/auth/verify', verify);
+api.post('/auth/verify/:id', verify);
 
 api.get('/roles', auth, permission(ROLE_READ), getRoles);
 api.put('/role/:id', auth, permission(ROLE_UPDATE), updateRole);
@@ -109,6 +123,7 @@ api.put(
 );
 
 api.get('/user/:id', auth, permission(USER_READ), getOneUser);
+api.get('/user/verify/:id', getOneUser);
 api.put('/user', auth, permission(USER_UPDATE), updateUser);
 api.put('/profile', auth, updateProfile);
 api.delete('/user/:id', auth, permission(USER_DELETE), deleteUser);
