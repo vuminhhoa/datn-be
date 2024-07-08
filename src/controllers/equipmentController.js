@@ -60,7 +60,6 @@ export async function getListEquipments(req, res) {
   } = req.query;
 
   const offset = (page - 1) * limit;
-  console.log(req.user);
   if (!req.user.DepartmentId && !hasPermission(EQUIPMENT_READ_ALL, req.user)) {
     return res.send({
       success: true,
