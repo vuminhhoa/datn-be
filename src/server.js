@@ -7,14 +7,6 @@ import { Server as SocketIo } from 'socket.io';
 import http from 'http';
 import Activity from './models/activityModel.js';
 
-const corsOptions = {
-  origin: '*',
-  methods: 'GET, POST, OPTIONS, PUT, PATCH, DELETE',
-  allowedHeaders:
-    'X-Requested-With, Content-Type, x-access-token, Authorization',
-  credentials: true,
-};
-
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   limit: 1000000,
@@ -23,23 +15,11 @@ const limiter = rateLimit({
 });
 
 const app = express();
-app.use(cors(corsOptions));
+app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
-const io = new SocketIo(server, {
-  cors: {
-    origin: '*',
-    methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'PATCH', 'DELETE'],
-    allowedHeaders: [
-      'X-Requested-With',
-      'Content-Type',
-      'x-access-token',
-      'Authorization',
-    ],
-    credentials: true,
-  },
-});
+const io = new SocketIo(server, { cors: { origin: '*' } });
 
 app.set('trust proxy', 1);
 app.use(limiter);
