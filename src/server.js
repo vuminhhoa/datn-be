@@ -16,12 +16,10 @@ const corsOptions = {
 };
 
 const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  limit: 1000000, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
-  standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
-  legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
-  // validate: { xForwardedForHeader: false }
-  // store: ... , // Redis, Memcached, etc. See below.
+  windowMs: 15 * 60 * 1000,
+  limit: 1000000,
+  standardHeaders: 'draft-7',
+  legacyHeaders: false,
 });
 
 const app = express();
