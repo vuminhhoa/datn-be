@@ -46,6 +46,14 @@ app.set('trust proxy', 1);
 app.use(limiter);
 app.use('/api', api);
 
+io.on('connection', (socket) => {
+  console.log('New client connected');
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
+});
+
 server.listen(PORT, async () => {
   try {
     await sequelize.authenticate();
@@ -66,14 +74,6 @@ server.listen(PORT, async () => {
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }
-});
-
-io.on('connection', (socket) => {
-  console.log('New client connected');
-
-  socket.on('disconnect', () => {
-    console.log('Client disconnected');
-  });
 });
 
 Activity.afterCreate((newActivity) => {
