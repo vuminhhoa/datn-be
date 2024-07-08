@@ -75,7 +75,7 @@ app.use((err, req, res, next) => {
 server.listen(PORT, async () => {
   try {
     await sequelize.authenticate();
-    await sequelize.sync({ alter: true });
+    await sequelize.sync();
     console.log('============================================================');
     console.log('Using', process.env.NODE_ENV, 'environment');
     console.log('============================================================');
