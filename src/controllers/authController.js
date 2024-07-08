@@ -53,7 +53,15 @@ export async function login(req, res) {
     const { email, password } = req.body;
     const user = await User.findOne({
       where: { email },
-      include: { model: Role, include: Permission },
+      include: {
+        model: Role,
+        include: { model: Permission, attributes: ['id', 'name'] },
+        attributes: ['name', 'id'],
+      },
+    });
+    const simpleUser = await User.findOne({
+      where: { email },
+      attributes: ['id', 'name', 'email', 'password'],
     });
     if (!user)
       return res.send({
@@ -66,9 +74,13 @@ export async function login(req, res) {
         success: false,
         message: 'Tài khoản hoặc mật khẩu không chính xác',
       });
-    const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, {
-      expiresIn: '7d',
-    });
+    const accessToken = jwt.sign(
+      { user: simpleUser },
+      process.env.ACCESS_TOKEN_SECRET,
+      {
+        expiresIn: '7d',
+      }
+    );
     return res.send({
       success: true,
       data: { user, accessToken },

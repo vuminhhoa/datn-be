@@ -81,7 +81,7 @@ export async function getOneUser(req, res) {
           include: { model: Permission, attributes: ['id', 'name'] },
           attributes: ['id', 'name'],
         },
-        { model: Department, attributes: ['id', 'name'] },
+        { model: Department, attributes: ['id', 'tenKhoaPhong'] },
       ],
     });
     if (!user) {

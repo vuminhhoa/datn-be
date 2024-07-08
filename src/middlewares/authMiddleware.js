@@ -22,14 +22,13 @@ export const auth = async (req, res, next) => {
             error: err,
           });
         }
-
+        console.log(decoded);
         if (decoded.user && decoded.user.email) {
           try {
             const user = await User.findOne({
               where: {
                 email: decoded.user.email,
                 id: decoded.user.id,
-                RoleId: decoded.user.RoleId,
               },
               attributes: [
                 'id',
