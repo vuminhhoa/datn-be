@@ -101,9 +101,14 @@ api.get('/biddings', auth, permission(BIDDING_READ), getListBiddings);
 api.get('/bidding/:id', auth, permission(BIDDING_READ), getOneBidding);
 api.put('/bidding/:id', auth, permission(BIDDING_UPDATE), updateBidding);
 api.delete('/bidding/:id', auth, permission(BIDDING_DELETE), deleteBidding);
-api.put('/approveBidding/:id', auth, permission(BIDDING_APPROVE), approveBidding);
+api.put(
+  '/approveBidding/:id',
+  auth,
+  permission(BIDDING_APPROVE),
+  approveBidding
+);
 
-api.get('/user/:id', auth, permission(USER_READ), getOneUser);
+api.get('/user/:id', auth, getOneUser);
 api.put('/user', auth, permission(USER_UPDATE), updateUser);
 api.put('/profile', auth, updateProfile);
 api.delete('/user/:id', auth, permission(USER_DELETE), deleteUser);
