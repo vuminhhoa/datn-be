@@ -22,7 +22,6 @@ export const auth = async (req, res, next) => {
             error: err,
           });
         }
-        console.log(decoded);
         if (decoded.user && decoded.user.email) {
           try {
             const user = await User.findOne({
