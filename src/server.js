@@ -7,75 +7,48 @@ import { Server as SocketIo } from 'socket.io';
 import http from 'http';
 import Activity from './models/activityModel.js';
 
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  limit: 1000000,
-  standardHeaders: 'draft-7',
-  legacyHeaders: false,
-});
-
 const app = express();
-app.use(cors());
-app.use(express.json());
-
-app.use(function (req, res, next) {
-  // Website you wish to allow to connect
-  res.setHeader('Access-Control-Allow-Origin', '*');
-
-  // Request methods you wish to allow
-  res.setHeader(
-    'Access-Control-Allow-Methods',
-    'GET, POST, OPTIONS, PUT, PATCH, DELETE'
-  );
-
-  // Request headers you wish to allow
-  res.setHeader(
-    'Access-Control-Allow-Headers',
-    'X-Requested-With, content-type',
-    'x-access-token',
-    'Authorization'
-  );
-
-  // Set to true if you need the website to include cookies in the requests sent
-  // to the API (e.g. in case you use sessions)
-  res.setHeader('Access-Control-Allow-Credentials', true);
-
-  // set cookie
-  res.setHeader('Set-Cookie', 'visited=true; Max-Age=3000; HttpOnly, Secure');
-
-  // Pass to next layer of middleware
-  next();
-});
-
-app.use(express.static('public'));
-
-app.use(express.json({ limit: '50mb' }));
 const server = http.createServer(app);
 const PORT = process.env.PORT || 5000;
 const io = new SocketIo(server, { cors: { origin: '*' } });
 
+// Apply rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  limit: 1000000, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+  standardHeaders: 'draft-7', // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+  // validate: { xForwardedForHeader: false }
+  // store: ... , // Redis, Memcached, etc. See below.
+});
+
+// Trust proxy
 app.set('trust proxy', 1);
+
+// CORS options
+const corsOptions = {
+  // origin: ['http://frontend-domain.com', 'http://another-frontend-domain.com'],
+  methods: 'GET, POST, OPTIONS, PUT, PATCH, DELETE',
+  allowedHeaders:
+    'X-Requested-With, Content-Type, x-access-token, Authorization',
+  credentials: true,
+};
+
+// Use CORS with options
+app.use(cors(corsOptions));
+app.use(express.json({ limit: '50mb' }));
+
+// Apply rate limiter to all requests
 app.use(limiter);
 
-io.on('connection', (socket) => {
-  console.log('New client connected');
-
-  socket.on('disconnect', () => {
-    console.log('Client disconnected');
-  });
-});
-
+// Routes
 app.use('/api', api);
 
-app.use((err, req, res, next) => {
-  console.log('___________err', err);
-  errorHandler(res, err);
-});
-
+// Start the server
 server.listen(PORT, async () => {
   try {
     await sequelize.authenticate();
-    await sequelize.sync();
+    await sequelize.sync({ alter: true });
     console.log('============================================================');
     console.log('Using', process.env.NODE_ENV, 'environment');
     console.log('============================================================');
@@ -92,6 +65,15 @@ server.listen(PORT, async () => {
   } catch (error) {
     console.error('Unable to connect to the database:', error);
   }
+});
+
+// Socket.io connection
+io.on('connection', (socket) => {
+  console.log('New client connected');
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
 });
 
 Activity.afterCreate((newActivity) => {
