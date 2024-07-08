@@ -21,7 +21,7 @@
     "socket.io": "^4.7.5"
   },
   "scripts": {
-    "start": "nodemon ./src/server.js"
+    "start": "nodemon --max-http-header-size=80000 ./src/server.js"
   },
   "devDependencies": {
     "prettier": "^3.2.5"

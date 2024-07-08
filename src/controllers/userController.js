@@ -75,7 +75,14 @@ export async function getOneUser(req, res) {
       where: {
         id: id,
       },
-      include: [{ model: Role, include: Permission }, { model: Department }],
+      include: [
+        {
+          model: Role,
+          include: { model: Permission, attributes: ['id', 'name'] },
+          attributes: ['id', 'name'],
+        },
+        { model: Department, attributes: ['id', 'name'] },
+      ],
     });
     if (!user) {
       return res.send({

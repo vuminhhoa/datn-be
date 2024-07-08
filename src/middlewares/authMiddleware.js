@@ -2,10 +2,8 @@ import jwt from 'jsonwebtoken';
 import { Department, Permission, Role, User } from '../models/index.js';
 
 export const auth = async (req, res, next) => {
-  console.log('im in auth middleware');
   try {
     const accessToken = req.header('Authorization')?.split(' ')[1];
-    console.log('accessToken', accessToken);
     if (!accessToken) {
       return res.send({
         success: false,
