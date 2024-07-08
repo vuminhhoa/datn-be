@@ -86,7 +86,7 @@ api.get('/activities', auth, permission(DASHBOARD_READ), getActivities);
 
 api.post('/auth/register', register);
 api.post('/auth/login', login);
-api.post('/auth/verify/:id', verify);
+api.post('/auth/verify', verify);
 
 api.get('/roles', auth, permission(ROLE_READ), getRoles);
 api.put('/role/:id', auth, permission(ROLE_UPDATE), updateRole);
