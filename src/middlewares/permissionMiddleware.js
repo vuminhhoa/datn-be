@@ -1,8 +1,8 @@
 import { Role_Permissions, Permission } from '../models/index.js';
 
 export const permission = (permission) => {
-  console.log(req.user);
   return async (req, res, next) => {
+    console.log(req.user);
     try {
       const user = req.user;
       if (user.RoleId === 1) return next();
