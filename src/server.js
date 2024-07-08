@@ -72,7 +72,7 @@ app.use((err, req, res, next) => {
   errorHandler(res, err);
 });
 
-server.listen(PORT, async () => {
+app.listen(PORT, async () => {
   try {
     await sequelize.authenticate();
     await sequelize.sync();
