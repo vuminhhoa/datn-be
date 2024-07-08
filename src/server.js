@@ -54,7 +54,7 @@ io.on('connection', (socket) => {
   });
 });
 
-server.listen(PORT, async () => {
+app.listen(PORT, async () => {
   try {
     await sequelize.authenticate();
     await sequelize.sync({ alter: true });
