@@ -214,7 +214,10 @@ export async function createRole(req, res) {
 
 export async function getRoles(req, res) {
   try {
-    const roles = await Role.findAll({ include: Permission });
+    const roles = await Role.findAll({
+      include: { model: Permission, attributes: ['id', 'name'] },
+      attributes: ['id', 'name'],
+    });
     return res.send({ data: roles, success: true });
   } catch (error) {
     console.log(error);
