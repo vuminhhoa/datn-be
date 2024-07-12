@@ -124,7 +124,10 @@ export async function getListEquipments(req, res) {
     const { rows, count } = await Equipment.findAndCountAll({
       where: condition,
       order: [[sortKey, direction]],
-      include: [{ model: Department }, { model: Bidding }],
+      include: [
+        { model: Department, attributes: ['id', 'tenKhoaPhong'] },
+        { model: Bidding, attributes: ['id', 'tenDeXuat'] },
+      ],
       limit: parseInt(limit),
       offset: parseInt(offset),
     });
