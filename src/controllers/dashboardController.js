@@ -17,13 +17,22 @@ export async function getDashboard(req, res) {
       limit: 11,
       raw: true,
     });
-
+    const preparedActivities = activities.map((activity) => {
+      return {
+        ...activity,
+        actor: {
+          id: activity.actor.id,
+          name: activity.actor.name,
+          image: activity.actor.image,
+        },
+      };
+    });
     const data = {
       countDepartments,
       countEquipments,
       countUsers,
       countBiddings,
-      activities,
+      activities: preparedActivities,
       hasNext: activities.length === 11,
     };
 

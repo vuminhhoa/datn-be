@@ -6,8 +6,17 @@ export async function getActivities(req, res) {
       order: [['createdAt', 'DESC']],
       raw: true,
     });
-
-    return res.send({ data: activities, success: true });
+    const preparedActivities = activities.map((activity) => {
+      return {
+        ...activity,
+        actor: {
+          id: activity.actor.id,
+          name: activity.actor.name,
+          image: activity.actor.image,
+        },
+      };
+    });
+    return res.send({ data: preparedActivities, success: true });
   } catch (error) {
     console.log(error);
     return res.send({
