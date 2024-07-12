@@ -1,4 +1,4 @@
-import { Role_Permissions, Permission } from '../models/index.js';
+import { Role_Permissions, Permission, Department } from '../models/index.js';
 
 export const permission = (permission) => {
   return async (req, res, next) => {
@@ -22,7 +22,14 @@ export const permission = (permission) => {
         });
       }
 
-      req.user = user;
+      req.user = {
+        id: user.id,
+        name: user.name,
+        RoleId: user.RoleId,
+        DepartmentId: user.DepartmentId,
+        email: user.email,
+        image: user.image,
+      };
       next();
     } catch (error) {
       return res.status(500).send({
