@@ -22,14 +22,6 @@ export const permission = (permission) => {
         });
       }
 
-      req.user = {
-        id: user.id,
-        name: user.name,
-        RoleId: user.RoleId,
-        DepartmentId: user.DepartmentId,
-        email: user.email,
-        image: user.image,
-      };
       next();
     } catch (error) {
       return res.status(500).send({
